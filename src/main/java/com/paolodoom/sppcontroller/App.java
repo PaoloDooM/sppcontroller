@@ -35,31 +35,6 @@ public class App extends Application {
     }
 
     public static void main(String[] args) throws Exception {
-        /*SppService spp = new SppService();
-        List<SerialPort> sps = spp.getPorts();
-        sps.forEach(sp -> {
-            System.out.println(sp.getDescriptivePortName() + "\n"
-                    + sp.getPortDescription() + "\n"
-                    + sp.getSystemPortName() + "\n" //COM#
-                    + sp.getPortLocation() + "\n"
-                    + sp.getPortLocation() + "\n-");
-        });
-        SerialPort readPort = null, writePort = null;
-        for (SerialPort sp : sps) {
-            switch (sp.getSystemPortName()) {
-                case "COM9":
-                    readPort = sp;
-                    break;
-                case "COM8":
-                    writePort = sp;
-                    break;
-            }
-        }
-        if (readPort == null || writePort == null) {
-            throw new Exception("Ports not found!");
-        }
-        spp.connect(readPort, writePort);
-        spp.read(readPort);*/
         launch();
     }
 

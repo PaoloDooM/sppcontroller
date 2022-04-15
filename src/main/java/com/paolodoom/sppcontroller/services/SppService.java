@@ -34,19 +34,16 @@ public class SppService {
         }
     }
 
-    public void read(SerialPort readPort) {
+    public String read(SerialPort readPort) {
         readPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
         try {
-            while (true) {
-                byte[] readBuffer = new byte[4];
-                int numRead = readPort.readBytes(readBuffer, readBuffer.length);
-                System.out.println("Read " + numRead + " bytes.");
-                System.out.println("Data " + new String(readBuffer));
-            }
+            byte[] readBuffer = new byte[4];
+            int numRead = readPort.readBytes(readBuffer, readBuffer.length);
+            return "Read " + numRead + " bytes: " + new String(readBuffer);
         } catch (Exception e) {
             e.printStackTrace();
+            return e.getMessage();
         }
-        disconnect(readPort, null);
     }
 
     public void write(SerialPort writePort, String data) {
@@ -70,6 +67,5 @@ public class SppService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        disconnect(null, writePort);
     }
 }
