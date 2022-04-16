@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
+import com.paolodoom.sppcontroller.controllers.automation.AutomationController;
 
 /**
  * FXML Controller class
@@ -37,9 +38,14 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/ConnectionView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationView.fxml"));
+            automartionTab.getChildren().add(loader.load());
+            automationController = loader.getController();
+            
+            loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/ConnectionView.fxml"));
             configurationTab.getChildren().add(loader.load());
             connectionController = loader.getController();
+            connectionController.setAutomationController(automationController);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

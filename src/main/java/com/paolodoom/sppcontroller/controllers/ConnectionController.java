@@ -6,14 +6,15 @@
 package com.paolodoom.sppcontroller.controllers;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.paolodoom.sppcontroller.controllers.automation.AutomationController;
 import com.paolodoom.sppcontroller.services.SppService;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -47,6 +48,7 @@ public class ConnectionController implements Initializable {
     List<SerialPort> sps = Collections.emptyList();
     SerialPort receivePort, sendPort;
     Task task;
+    AutomationController automationController;
 
     /**
      * Initializes the controller class.
@@ -115,7 +117,13 @@ public class ConnectionController implements Initializable {
                 public Void call() {
                     while (true) {
                         if (!isCancelled()) {
-                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - " + spp.read(receivePort));
+                            try {
+                                String readedString = spp.read(receivePort);
+                                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - " + readedString);
+                                automationController.execAutomation(readedString);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -132,5 +140,9 @@ public class ConnectionController implements Initializable {
             task = null;
         }
         debugLog.clear();
+    }
+
+    public void setAutomationController(AutomationController automationController) {
+        this.automationController = automationController;
     }
 }

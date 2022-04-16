@@ -9,4 +9,7 @@ module com.paolodoom.sppcontroller {
     
     opens com.paolodoom.sppcontroller.controllers to javafx.fxml;
     exports com.paolodoom.sppcontroller.controllers;
+    
+    opens com.paolodoom.sppcontroller.controllers.automation to javafx.fxml;
+    exports com.paolodoom.sppcontroller.controllers.automation;
 }

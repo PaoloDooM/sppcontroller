@@ -1,8 +1,6 @@
 package com.paolodoom.sppcontroller;
 
-import com.fazecast.jSerialComm.SerialPort;
 import com.paolodoom.sppcontroller.controllers.HomeController;
-import com.paolodoom.sppcontroller.services.SppService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

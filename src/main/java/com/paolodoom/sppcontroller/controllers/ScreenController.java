@@ -16,7 +16,7 @@ import javafx.fxml.Initializable;
 class ScreenController implements Initializable{
 
     @Override
-    public void initialize(URL arg0, ResourceBundle arg1) {
+    public void initialize(URL url, ResourceBundle rb) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
