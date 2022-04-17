@@ -212,7 +212,7 @@ public class ConnectionController implements Initializable {
                 connectionTask = null;
                 setStateConnectionButton(ConnectionState.connected);
                 createReadTask();
-                new Thread(connectionTask).start();
+                new Thread(readTask).start();
             });
         }
     }
