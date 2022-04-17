@@ -5,6 +5,7 @@
  */
 package com.paolodoom.sppcontroller.controllers.automation;
 
+import com.paolodoom.sppcontroller.models.Automation;
 import com.paolodoom.sppcontroller.models.AutomationType;
 import java.net.URL;
 import java.util.Arrays;
@@ -37,8 +38,11 @@ public class AutomationFormController implements Initializable {
     private Label formLabel;
     @FXML
     private MenuButton menuType;
+    @FXML
+    private TextField buttonField;
     
-    AutomationType selectedType;
+    AutomationType selectedType = AutomationType.values()[0];
+    AutomationController automationController;
 
     /**
      * Initializes the controller class.
@@ -51,6 +55,8 @@ public class AutomationFormController implements Initializable {
             mi.setOnAction(this::setAutomationType);
             menuType.getItems().add(mi);
         });
+        menuType.setText(selectedType.toString());
+        setInputType(selectedType);
     }
         
     private void setAutomationType(ActionEvent event) {
@@ -58,8 +64,61 @@ public class AutomationFormController implements Initializable {
         menuType.setText(source.getText());
         Arrays.asList(AutomationType.keyCombination).forEach(type->{
             if(type.toString().equals(source.getText())){
-                selectedType = type;
+                setInputType(type);
             }
         });
+    }
+    
+    public void setAutomationForm(Automation automation){
+        if(automation == null){
+            formLabel.setText("Add Item");
+        }else{
+            formLabel.setText("Edit Item");
+            buttonField.setText(automation.getButton());
+            setInputType(automation.getType());
+            switch(selectedType){
+                case keyCombination:
+                    inputField.setText(String.join("", automation.getKeyCombination()));
+                    break;
+                case executable:
+                    inputField.setText(automation.getPath());
+                    break;
+            }
+        }
+    }
+    
+    public void setInputType(AutomationType type){
+        selectedType = type;
+        switch(type){
+            case keyCombination:
+                inputFieldLabel.setText("Key combination");
+                inputField.clear();
+                break;
+            case executable:
+                inputFieldLabel.setText("Executable path");
+                inputField.clear();
+                break;
+        }
+    }
+    
+    public void setAutomationConroller(AutomationController automationController){
+        this.automationController = automationController;
+    }
+
+    @FXML
+    private void addCard(ActionEvent event) {
+        switch(selectedType){
+            case keyCombination:
+                automationController.addAutomationCard(new Automation(selectedType, inputField.getText().split("%+"), buttonField.getText()));
+                break;
+            case executable:
+                automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));
+                break;
+        }
+    }
+
+    @FXML
+    private void goBack(ActionEvent event) {
+        automationController.returnToViewMode();
     }
 }
