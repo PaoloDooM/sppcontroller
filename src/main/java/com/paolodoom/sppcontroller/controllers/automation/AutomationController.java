@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -30,6 +31,8 @@ public class AutomationController implements Initializable {
     private ScrollPane automationPane;
     @FXML
     private VBox automationBox;
+    @FXML
+    private AnchorPane automationView;
 
     /**
      * Initializes the controller class.

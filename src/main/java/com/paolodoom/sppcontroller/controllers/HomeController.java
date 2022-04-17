@@ -27,6 +27,8 @@ public class HomeController implements Initializable {
     private AnchorPane screenTab;
     @FXML
     private AnchorPane configurationTab;
+    @FXML
+    private AnchorPane homeView;
 
     private AutomationController automationController;
     private ScreenController screenController;
