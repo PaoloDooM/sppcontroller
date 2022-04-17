@@ -21,9 +21,9 @@ public class SppService {
     }
 
     public void connect(SerialPort readPort, SerialPort writePort) {
-        readPort.openPort(1000);
-        writePort.openPort(1000);
-    }
+            readPort.openPort(1000);
+            writePort.openPort(1000);
+        }
 
     public void disconnect(SerialPort readPort, SerialPort writePort) {
         if (readPort != null) {
@@ -42,7 +42,7 @@ public class SppService {
             return "Read " + numRead + " bytes: " + new String(readBuffer);
         } catch (Exception e) {
             e.printStackTrace();
-            return e.getMessage();
+            return e.toString();
         }
     }
 
