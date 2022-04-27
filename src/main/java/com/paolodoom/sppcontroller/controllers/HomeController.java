@@ -43,11 +43,16 @@ public class HomeController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationView.fxml"));
             automartionTab.getChildren().add(loader.load());
             automationController = loader.getController();
-            
+
             loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/ConnectionView.fxml"));
             configurationTab.getChildren().add(loader.load());
             connectionController = loader.getController();
             connectionController.setAutomationController(automationController);
+
+            loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/ScreenView.fxml"));
+            screenTab.getChildren().add(loader.load());
+            screenController = loader.getController();
+            screenController.setConnectionController(connectionController);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

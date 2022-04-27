@@ -1,6 +1,7 @@
 module com.paolodoom.sppcontroller {
     requires javafx.controls;
     requires javafx.fxml;
+    requires jSensors;
 
     opens com.paolodoom.sppcontroller to javafx.fxml;
     exports com.paolodoom.sppcontroller;
