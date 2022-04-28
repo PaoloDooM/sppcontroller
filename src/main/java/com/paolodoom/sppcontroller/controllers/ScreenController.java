@@ -48,8 +48,7 @@ public class ScreenController implements Initializable {
         sensorsDisplay.setText("");
         List<Cpu> cpus = components.cpus;
         if (cpus != null) {
-            //TODO: remove sublist
-            for (final Cpu cpu : cpus.subList(0, 1)) {
+            for (final Cpu cpu : cpus) {
                 System.out.println("Found CPU component: " + cpu.name);
                 sensorsDisplay.setText(sensorsDisplay.getText() + cpu.name + "\n");
 
