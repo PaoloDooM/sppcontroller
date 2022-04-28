@@ -62,7 +62,7 @@ public class AutomationFormController implements Initializable {
     private void setAutomationType(ActionEvent event) {
         MenuItem source = (MenuItem) event.getSource();
         menuType.setText(source.getText());
-        Arrays.asList(AutomationType.keyCombination).forEach(type->{
+        Arrays.asList(AutomationType.values()).forEach(type->{
             if(type.toString().equals(source.getText())){
                 setInputType(type);
             }

@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="100.0" prefWidth="500.0" style="-fx-background-color: blue; -fx-background-radius: 10; -fx-background-insets: 5;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.automation.AutomationCardController">
+<AnchorPane id="AnchorPane" maxHeight="100.0" maxWidth="500.0" minHeight="100.0" minWidth="500.0" prefHeight="100.0" prefWidth="500.0" style="-fx-background-color: black; -fx-background-radius: 10; -fx-background-insets: 5;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.automation.AutomationCardController">
    <children>
       <Label fx:id="titleLabel" layoutX="18.0" layoutY="14.0" text="Label" textFill="WHITE">
          <font>
