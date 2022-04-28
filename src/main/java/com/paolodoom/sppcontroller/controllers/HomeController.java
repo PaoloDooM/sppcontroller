@@ -58,4 +58,9 @@ public class HomeController implements Initializable {
         }
     }
 
+    public void stopAll(){
+        if(screenController!=null){
+            screenController.stopSensorsTask();
+        }
+    }
 }

@@ -1,12 +1,12 @@
 module com.paolodoom.sppcontroller {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.fazecast.jSerialComm;
+    requires java.base;
     requires jSensors;
 
     opens com.paolodoom.sppcontroller to javafx.fxml;
     exports com.paolodoom.sppcontroller;
-    requires com.fazecast.jSerialComm;
-    requires java.base;
     
     opens com.paolodoom.sppcontroller.controllers to javafx.fxml;
     exports com.paolodoom.sppcontroller.controllers;
