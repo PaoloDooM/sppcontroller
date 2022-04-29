@@ -8,10 +8,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="com.paolodoom.sppcontroller.controllers.ScreenController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.ScreenController">
    <children>
-      <TextFlow layoutX="286.0" layoutY="50.0" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: black;">
+      <TextFlow layoutX="286.0" layoutY="50.0" maxHeight="300.0" maxWidth="300.0" minHeight="300.0" minWidth="300.0" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: black;">
          <children>
             <Text fx:id="sensorsDisplay" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="sensors" />
          </children>
@@ -19,5 +18,10 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </TextFlow>
+      <ScrollPane layoutX="14.0" layoutY="14.0" prefHeight="370.0" prefViewportHeight="370.0" prefViewportWidth="253.0" prefWidth="253.0">
+         <content>
+            <TreeView fx:id="treeView" layoutX="14.0" layoutY="14.0" prefHeight="368.0" prefWidth="251.0" />
+         </content>
+      </ScrollPane>
    </children>
 </AnchorPane>
