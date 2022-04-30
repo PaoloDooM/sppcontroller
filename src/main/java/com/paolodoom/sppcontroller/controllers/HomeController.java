@@ -5,6 +5,7 @@
  */
 package com.paolodoom.sppcontroller.controllers;
 
+import com.paolodoom.sppcontroller.controllers.connection.ConnectionController;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -44,7 +45,7 @@ public class HomeController implements Initializable {
             automartionTab.getChildren().add(loader.load());
             automationController = loader.getController();
 
-            loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/ConnectionView.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/connection/ConnectionView.fxml"));
             configurationTab.getChildren().add(loader.load());
             connectionController = loader.getController();
             connectionController.setAutomationController(automationController);

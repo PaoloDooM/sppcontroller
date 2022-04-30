@@ -8,6 +8,8 @@ package com.paolodoom.sppcontroller.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
@@ -27,6 +29,84 @@ public class BTService {
     boolean scanFinished = false;
     RemoteDevice hc05device;
     String hc05Url = "btspp://hc05Addr:1;authenticate=false;encrypt=false;master=false";
+    List<RemoteDevice> devices;
+    OutputStream dos;
+    InputStream dis;
+    StreamConnection sconn;
+
+    public List<RemoteDevice> getDevices() throws Exception {
+        devices = new ArrayList<>();
+
+        //scan for all devices:
+        scanFinished = false;
+        LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
+            @Override
+            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
+                try {
+                    String name = btDevice.getFriendlyName(false);
+                    System.out.format("%s (%s)\n", name, btDevice.getBluetoothAddress());
+                    devices.add(btDevice);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void inquiryCompleted(int discType) {
+                scanFinished = true;
+            }
+
+            @Override
+            public void serviceSearchCompleted(int transID, int respCode) {
+            }
+
+            @Override
+            public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+            }
+        });
+        while (!scanFinished) {
+            //this is easier to understand (for me) as the thread stuff examples from bluecove
+            Thread.sleep(500);
+        }
+        return devices;
+    }
+
+    public void connect(RemoteDevice device) throws Exception {
+        System.out.println(device.getBluetoothAddress());
+        String url = hc05Url.replace("hc05Addr", device.getBluetoothAddress());
+        System.out.println(device);
+
+        //if you know your hc05Url this is all you need:
+        sconn = (StreamConnection) Connector.open(url);
+        dos = sconn.openOutputStream();
+        dis = sconn.openInputStream();
+    }
+
+    public void disconnect() throws Exception {
+        if (dos != null) {
+            dos.close();
+            dos = null;
+        }
+        if (dis != null) {
+            dis.close();
+            dis = null;
+        }
+        if (sconn != null) {
+            sconn.close();
+            sconn = null;
+        }
+    }
+
+    public void write(String data) throws Exception {
+        dos.write(data.getBytes());
+        dos.flush();
+    }
+
+    public String read() throws Exception {
+        byte[] b = dis.readNBytes(4);
+        System.out.println("4: " + (new String(b)));
+        return "Read: " + (new String(b));
+    }
 
     public void go() throws Exception {
         //scan for all devices:
@@ -64,6 +144,7 @@ public class BTService {
             Thread.sleep(500);
         }
 
+        //PaoloDooM: fails in my system, needs a method for get UUID vals.
         //search for services:
         UUID uuid = new UUID(0x1101); //scan for btspp://... services (as HC-05 offers it)
         UUID[] searchUuidSet = new UUID[]{uuid};
@@ -115,7 +196,7 @@ public class BTService {
 
         byte[] b = is.readNBytes(4);
         System.out.println("4:" + (new String(b)));
-        
+
         os.close();
         is.close();
         streamConnection.close();

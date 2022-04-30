@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="150.0" prefWidth="150.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.connection.BtConnController">
+   <children>
+      <Label layoutX="16.0" layoutY="43.0" text="Devices" textFill="WHITE" />
+      <MenuButton fx:id="devicesDrop" layoutX="33.0" layoutY="72.0" prefHeight="25.0" prefWidth="95.0">
+         <items>
+            <MenuItem text="Choice 1" />
+            <MenuItem text="Choice 2" />
+            <MenuItem text="Choice 3" />
+         </items>
+      </MenuButton>
+   </children>
+</AnchorPane>

@@ -39,12 +39,24 @@
             <artifactId>jSensors</artifactId>
             <version>2.2.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.ultreia/bluecove -->
         <dependency>
-            <groupId>net.sf.bluecove</groupId>
+            <groupId>io.ultreia</groupId>
             <artifactId>bluecove</artifactId>
             <version>2.1.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/libs/bluecove-2.1.1-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.bidib.jbidib/jbidibc-ch341a -->
+        <dependency>
+            <groupId>org.bidib.jbidib</groupId>
+            <artifactId>jbidibc-ch341a</artifactId>
+            <version>1.13.14</version>
+            <exclusions>
+                <exclusion>
+                    <!-- module com.paolodoom.sppcontroller reads package com.sun.xml.bind.v2.model.nav from both jaxb.impl and jaxb.core -->
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

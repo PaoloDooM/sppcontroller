@@ -57,8 +57,8 @@ void readData(){
     char data[4]; 
     if(Serial.available()){
         strcpy(data, Serial.getString());
-        //writeLcd(data);
-        Serial.print(data);
-        Serial.flush();
+        writeLcd(data);
+        //Serial.print(data);
+        //Serial.flush();
     }
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.connection.ConnectionController">
+    <children>
+        <Button fx:id="connectionButton" layoutX="41.0" layoutY="266.0" mnemonicParsing="false" onAction="#connection" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: green;" text="Connect" textFill="WHITE" />
+        <TextArea fx:id="debugLog" layoutX="171.0" layoutY="25.0" prefHeight="350.0" prefWidth="400.0" />
+      <Label layoutX="171.0" layoutY="6.0" text="Debug Log" />
+      <Button fx:id="refreshButton" layoutX="41.0" layoutY="306.0" mnemonicParsing="false" onAction="#refresh" prefHeight="30.0" prefWidth="95.0" text="Refresh" />
+      <MenuButton fx:id="connectionTypeMenu" layoutX="39.0" layoutY="66.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" />
+      <Label layoutX="23.0" layoutY="39.0" text="Connection Type" />
+      <AnchorPane fx:id="connTypeAnchor" layoutX="11.0" layoutY="100.0" prefHeight="150.0" prefWidth="150.0" />
+    </children>
+</AnchorPane>

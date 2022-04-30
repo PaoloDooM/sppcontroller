@@ -5,6 +5,7 @@
  */
 package com.paolodoom.sppcontroller.controllers;
 
+import com.paolodoom.sppcontroller.controllers.connection.ConnectionController;
 import com.paolodoom.sppcontroller.models.CustomTreeMap;
 import com.profesorfalken.jsensors.JSensors;
 import com.profesorfalken.jsensors.model.components.Components;
@@ -203,14 +204,14 @@ public class ScreenController implements Initializable {
                 @Override
                 public Void call() throws Exception {
                     while (!isCancelled()) {
-                        //Components components = periodicRead();
+                        Components components = periodicRead();
                         final CountDownLatch latch = new CountDownLatch(1);
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
                                 try {
                                     if (firstIteration) {
-                                        //initializeviewTree(components);
+                                        initializeviewTree(components);
                                         firstIteration = false;
                                     }
                                 } finally {

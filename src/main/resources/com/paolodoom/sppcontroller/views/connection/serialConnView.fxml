@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="150.0" prefWidth="150.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.paolodoom.sppcontroller.controllers.connection.SerialConnController">
+   <children>
+      <MenuButton fx:id="sendDrop" layoutX="33.0" layoutY="109.0" prefHeight="25.0" prefWidth="95.0">
+         <items>
+            <MenuItem text="Choice 1" />
+            <MenuItem text="Choice 2" />
+            <MenuItem text="Choice 3" />
+         </items>
+      </MenuButton>
+      <Label layoutX="16.0" layoutY="79.0" text="Send Port" textFill="WHITE" />
+      <Label layoutX="16.0" layoutY="12.0" text="Receive Port" textFill="WHITE" />
+      <MenuButton fx:id="receiveDrop" layoutX="33.0" layoutY="41.0" prefHeight="25.0" prefWidth="95.0">
+         <items>
+            <MenuItem text="Choice 1" />
+            <MenuItem text="Choice 2" />
+            <MenuItem text="Choice 3" />
+         </items>
+      </MenuButton>
+   </children>
+</AnchorPane>

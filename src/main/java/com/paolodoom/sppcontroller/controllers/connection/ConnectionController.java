@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.paolodoom.sppcontroller.controllers;
+package com.paolodoom.sppcontroller.controllers.connection;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.paolodoom.sppcontroller.controllers.ScreenController;
 import com.paolodoom.sppcontroller.controllers.automation.AutomationController;
+import com.paolodoom.sppcontroller.models.ConnType;
 import com.paolodoom.sppcontroller.models.ConnectionState;
 import com.paolodoom.sppcontroller.services.SppService;
 import com.paolodoom.sppcontroller.services.BTService;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -22,11 +25,14 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
+import javax.bluetooth.RemoteDevice;
 
 /**
  * FXML Controller class
@@ -35,10 +41,6 @@ import javafx.scene.control.TextArea;
  */
 public class ConnectionController implements Initializable {
 
-    @FXML
-    private MenuButton receiveDrop;
-    @FXML
-    private MenuButton sendDrop;
     @FXML
     private TextArea debugLog;
     @FXML
@@ -49,11 +51,24 @@ public class ConnectionController implements Initializable {
     SppService spp = new SppService();
     BTService bt = new BTService();
     List<SerialPort> sps = Collections.emptyList();
+    List<RemoteDevice> devices = Collections.emptyList();
+    RemoteDevice selectedDevice;
     SerialPort receivePort, sendPort;
     Task readTask, connectionTask;
     AutomationController automationController;
     ScreenController screenController;
     ConnectionState connectionButtonState = ConnectionState.disconnected;
+    ConnType selectedConnType = ConnType.bluetooth;
+    BtConnController btCtrl;
+    SerialConnController serialCtrl;
+    AnchorPane btConnView;
+    AnchorPane serialConnView;
+    String readedString = "";
+
+    @FXML
+    private MenuButton connectionTypeMenu;
+    @FXML
+    private AnchorPane connTypeAnchor;
 
     public void setAutomationController(AutomationController automationController) {
         this.automationController = automationController;
@@ -71,8 +86,34 @@ public class ConnectionController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setStateConnectionButton(connectionButtonState);
-        retrievePorts();
+        try {
+            Arrays.asList(ConnType.values()).forEach(t -> {
+                MenuItem typeItem = new MenuItem(t.toString());
+                typeItem.setOnAction(this::setConnType);
+                connectionTypeMenu.getItems().add(typeItem);
+            });
+            connectionTypeMenu.setText(ConnType.bluetooth.toString());
+
+            loadConnCtrlView();
+            switchConnCtrlView();
+
+            setStateConnectionButton(connectionButtonState);
+            retrievePorts();
+            retrieveDevices();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void setConnType(ActionEvent event) {
+        MenuItem source = (MenuItem) event.getSource();
+        Arrays.asList(ConnType.values()).forEach(t -> {
+            if (source.getText().equals(t.toString())) {
+                selectedConnType = t;
+                connectionTypeMenu.setText(source.getText());
+                switchConnCtrlView();
+            }
+        });
     }
 
     @FXML
@@ -106,7 +147,19 @@ public class ConnectionController implements Initializable {
             connectionTask = null;
         }
 
-        spp.disconnect(receivePort, sendPort);
+        switch (selectedConnType) {
+            case bluetooth:
+                try {
+                bt.disconnect();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            break;
+            case serial:
+                spp.disconnect(receivePort, sendPort);
+                break;
+        }
+
         debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Disconnected\n");
         //debugLog.clear();
         setStateConnectionButton(ConnectionState.disconnected);
@@ -114,20 +167,64 @@ public class ConnectionController implements Initializable {
 
     @FXML
     private void refresh(ActionEvent event) {
-        retrievePorts();
+        switch (selectedConnType) {
+            case bluetooth:
+                try {
+                retrieveDevices();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            break;
+
+            case serial:
+                retrievePorts();
+                break;
+        }
     }
 
     public void retrievePorts() {
         sps = spp.getPorts();
-        receiveDrop.getItems().setAll(Collections.emptyList());
-        sendDrop.getItems().setAll(Collections.emptyList());
+        serialCtrl.getReceiveDrop().getItems().setAll(Collections.emptyList());
+        serialCtrl.getSendDrop().getItems().setAll(Collections.emptyList());
         sps.forEach(sp -> {
             MenuItem receiveItem = new MenuItem(sp.getSystemPortName());
             MenuItem sendItem = new MenuItem(sp.getSystemPortName());
             receiveItem.setOnAction(this::setReceivePort);
             sendItem.setOnAction(this::setSendPort);
-            receiveDrop.getItems().add(receiveItem);
-            sendDrop.getItems().add(sendItem);
+            serialCtrl.getReceiveDrop().getItems().add(receiveItem);
+            serialCtrl.getSendDrop().getItems().add(sendItem);
+        });
+    }
+
+    public void retrieveDevices() throws Exception {
+        devices = bt.getDevices();
+        btCtrl.getDevicesDrop().getItems().setAll(Collections.emptyList());
+        devices.forEach(d -> {
+            String name = "Error!";
+            try {
+                name = d.getFriendlyName(false);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            MenuItem deviceItem = new MenuItem(name);
+            deviceItem.setOnAction(this::setDevice);
+            btCtrl.getDevicesDrop().getItems().add(deviceItem);
+        });
+    }
+
+    private void setDevice(ActionEvent event) {
+        MenuItem source = (MenuItem) event.getSource();
+        devices.forEach(d -> {
+            String name = "Error!";
+            try {
+                name = d.getFriendlyName(false);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (source.getText().equals(name)) {
+                selectedDevice = d;
+                btCtrl.getDevicesDrop().setText(source.getText());
+            }
         });
     }
 
@@ -136,7 +233,7 @@ public class ConnectionController implements Initializable {
         sps.forEach(sp -> {
             if (source.getText().equals(sp.getSystemPortName())) {
                 receivePort = sp;
-                receiveDrop.setText(source.getText());
+                serialCtrl.getReceiveDrop().setText(source.getText());
             }
         });
     }
@@ -146,7 +243,7 @@ public class ConnectionController implements Initializable {
         sps.forEach(sp -> {
             if (source.getText().equals(sp.getSystemPortName())) {
                 sendPort = sp;
-                sendDrop.setText(source.getText());
+                serialCtrl.getSendDrop().setText(source.getText());
             }
         });
     }
@@ -154,22 +251,28 @@ public class ConnectionController implements Initializable {
     private void setStateConnectionButton(ConnectionState state) {
         switch (state) {
             case connecting:
-                sendDrop.setDisable(true);
-                receiveDrop.setDisable(true);
+                serialCtrl.getSendDrop().setDisable(true);
+                serialCtrl.getReceiveDrop().setDisable(true);
+                btCtrl.getDevicesDrop().setDisable(true);
+                connectionTypeMenu.setDisable(true);
                 connectionButton.setDisable(true);
                 connectionButton.setText("Connecting");
                 connectionButton.setStyle("-fx-background-color: grey;");
                 break;
             case connected:
-                sendDrop.setDisable(true);
-                receiveDrop.setDisable(true);
+                serialCtrl.getSendDrop().setDisable(true);
+                serialCtrl.getReceiveDrop().setDisable(true);
+                btCtrl.getDevicesDrop().setDisable(true);
+                connectionTypeMenu.setDisable(true);
                 connectionButton.setDisable(false);
                 connectionButton.setText("Disconnect");
                 connectionButton.setStyle("-fx-background-color: red;");
                 break;
             case disconnected:
-                sendDrop.setDisable(false);
-                receiveDrop.setDisable(false);
+                serialCtrl.getSendDrop().setDisable(false);
+                serialCtrl.getReceiveDrop().setDisable(false);
+                btCtrl.getDevicesDrop().setDisable(false);
+                connectionTypeMenu.setDisable(false);
                 connectionButton.setDisable(false);
                 connectionButton.setText("Connect");
                 connectionButton.setStyle("-fx-background-color: green;");
@@ -184,8 +287,17 @@ public class ConnectionController implements Initializable {
                 @Override
                 public Void call() throws Exception {
                     while (true) {
+                        //TODO: replace global var for local var
+                        readedString = "Null";
                         if (!isCancelled()) {
-                            String readedString = spp.read(receivePort);
+                            switch (selectedConnType) {
+                                case bluetooth:
+                                    readedString = bt.read();
+                                    break;
+                                case serial:
+                                    readedString = spp.read(receivePort);
+                                    break;
+                            }
                             final CountDownLatch latch = new CountDownLatch(1);
                             Platform.runLater(new Runnable() {
                                 @Override
@@ -215,23 +327,49 @@ public class ConnectionController implements Initializable {
 
     public void createConnectionTask() {
         if (connectionTask == null) {
-            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+            try {
+                switch (selectedConnType) {
+                    case bluetooth:
+                        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting: " + selectedDevice.getFriendlyName(false) + "\n");
+                        break;
+                    case serial:
+                        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                        break;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             connectionTask = new Task<Void>() {
                 @Override
                 public Void call() throws Exception {
                     if (!isCancelled()) {
-                        try {
-                            bt.go();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        switch (selectedConnType) {
+                            case bluetooth:
+                                try {
+                                bt.connect(selectedDevice);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            break;
+                            case serial:
+                                spp.connect(receivePort, sendPort);
+                                break;
                         }
-                        spp.connect(receivePort, sendPort);
                         final CountDownLatch latch = new CountDownLatch(1);
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                                    switch (selectedConnType) {
+                                        case bluetooth:
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected: " + selectedDevice.getFriendlyName(false) + "\n");
+                                            break;
+                                        case serial:
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                                            break;
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 } finally {
                                     latch.countDown();
                                 }
@@ -261,11 +399,42 @@ public class ConnectionController implements Initializable {
     public void writeToLcd(String data) {
         try {
             if (ConnectionState.connected == connectionButtonState) {
-                spp.write(sendPort, data);
+                switch (selectedConnType) {
+                    case bluetooth:
+                        bt.write(data);
+                        break;
+                    case serial:
+                        spp.write(sendPort, data);
+                        break;
+                }
                 debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + data + "\n");
             }
         } catch (Exception e) {
             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write failed\n");
+        }
+    }
+
+    public void loadConnCtrlView() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(ConnType.bluetooth.getView()));
+        btConnView = loader.load();
+        btCtrl = loader.getController();
+
+        loader = new FXMLLoader(getClass().getResource(ConnType.serial.getView()));
+        serialConnView = loader.load();
+        serialCtrl = loader.getController();
+
+        connTypeAnchor.getChildren().add(btConnView);
+    }
+
+    public void switchConnCtrlView() {
+        connTypeAnchor.getChildren().remove(0);
+        switch (selectedConnType) {
+            case bluetooth:
+                connTypeAnchor.getChildren().add(btConnView);
+                break;
+            case serial:
+                connTypeAnchor.getChildren().add(serialConnView);
+                break;
         }
     }
 }
