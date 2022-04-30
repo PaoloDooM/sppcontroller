@@ -26,7 +26,7 @@ public class BTService {
 
     boolean scanFinished = false;
     RemoteDevice hc05device;
-    String hc05Url = "btspp://";
+    String hc05Url = "btspp://hc05Addr:1;authenticate=false;encrypt=false;master=false";
 
     public void go() throws Exception {
         //scan for all devices:
@@ -102,10 +102,11 @@ public class BTService {
         }
 
         System.out.println(hc05device.getBluetoothAddress());
-        System.out.println(hc05Url + hc05device.getBluetoothAddress() + ":1;authenticate=false;encrypt=false;master=false");
+        hc05Url = hc05Url.replace("hc05Addr", hc05device.getBluetoothAddress());
+        System.out.println(hc05Url);
 
         //if you know your hc05Url this is all you need:
-        StreamConnection streamConnection = (StreamConnection) Connector.open(hc05Url + hc05device.getBluetoothAddress() + ":1;authenticate=false;encrypt=false;master=false");
+        StreamConnection streamConnection = (StreamConnection) Connector.open(hc05Url);
         OutputStream os = streamConnection.openOutputStream();
         InputStream is = streamConnection.openInputStream();
 

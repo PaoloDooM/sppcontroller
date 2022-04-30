@@ -25,8 +25,8 @@ public class SppService {
     public void connect(SerialPort readPort, SerialPort writePort) {
         readPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
         readPort.setBaudRate(9600);
-        writePort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 1000);
-        writePort.setComPortParameters(9600, 8, 1, 0, true);
+        writePort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
+        writePort.setBaudRate(9600);
         readPort.openPort(1000);
         writePort.openPort(1000);
     }
