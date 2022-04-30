@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
@@ -28,7 +29,7 @@ public class BTService {
 
     boolean scanFinished = false;
     RemoteDevice hc05device;
-    String hc05Url = "btspp://hc05Addr:1;authenticate=false;encrypt=false;master=false";
+    String hc05Url;
     List<RemoteDevice> devices;
     OutputStream dos;
     InputStream dis;
@@ -36,7 +37,6 @@ public class BTService {
 
     public List<RemoteDevice> getDevices() throws Exception {
         devices = new ArrayList<>();
-
         //scan for all devices:
         scanFinished = false;
         LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
@@ -72,12 +72,43 @@ public class BTService {
     }
 
     public void connect(RemoteDevice device) throws Exception {
+        UUID uuid = new UUID(0x1101); //scan for btspp://... services (as HC-05 offers it)
+        UUID[] searchUuidSet = new UUID[]{uuid};
+        scanFinished = false;
+        LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(null, searchUuidSet,
+                device, new DiscoveryListener() {
+            @Override
+            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
+            }
+
+            @Override
+            public void inquiryCompleted(int discType) {
+            }
+
+            @Override
+            public void serviceSearchCompleted(int transID, int respCode) {
+                scanFinished = true;
+            }
+
+            @Override
+            public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+                Arrays.asList(servRecord).forEach(s -> {
+                    if(hc05Url == null){
+                        hc05Url = s.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+                    }
+                    System.out.println("Service: " + s.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+                });
+            }
+        });
+        while (!scanFinished) {
+            Thread.sleep(500);
+        }
+
         System.out.println(device.getBluetoothAddress());
-        String url = hc05Url.replace("hc05Addr", device.getBluetoothAddress());
-        System.out.println(device);
+        System.out.println(hc05Url);
 
         //if you know your hc05Url this is all you need:
-        sconn = (StreamConnection) Connector.open(url);
+        sconn = (StreamConnection) Connector.open(hc05Url);
         dos = sconn.openOutputStream();
         dis = sconn.openInputStream();
     }
@@ -95,6 +126,7 @@ public class BTService {
             sconn.close();
             sconn = null;
         }
+        hc05Url = null;
     }
 
     public void write(String data) throws Exception {

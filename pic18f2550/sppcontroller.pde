@@ -38,6 +38,7 @@ readBtns(){
             if(!btnsSt[i]){
                 toggle(USERLED);
                 Serial.print(btnsCm[i]);
+                Serial.flush();
             }
             btnsSt[i]=!btnsSt[i];
          }
@@ -54,11 +55,11 @@ void writeLcd(char* data){
 }
 
 void readData(){
-    char data[4]; 
+    char data[5]; 
     if(Serial.available()){
         strcpy(data, Serial.getString());
         writeLcd(data);
-        //Serial.print(data);
-        //Serial.flush();
+        Serial.print(strcat("->", data));
+        Serial.flush();
     }
 }
