@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.CountDownLatch;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -39,6 +41,7 @@ public class ScreenController implements Initializable {
     Task sensorsTask;
     ConnectionController connectionController;
     Map<String, Double> sensorsData;
+    boolean firstIteration;
 
     @FXML
     private Text sensorsDisplay;
@@ -80,9 +83,9 @@ public class ScreenController implements Initializable {
                     List<Load> loads = cpus.get(i).sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        if(load.name.contains("CPU Total")){
-                            sensorsData.put(load.name + "$" + i, load.value);   
-                        }else if(load.name.contains("Memory")){
+                        if (load.name.contains("CPU Total")) {
+                            sensorsData.put(load.name + "$" + i, load.value);
+                        } else if (load.name.contains("Memory")) {
                             sensorsData.put(load.name, load.value);
                         }
                     }
@@ -102,8 +105,8 @@ public class ScreenController implements Initializable {
                     List<Temperature> temps = gpu.sensors.temperatures;
                     for (final Temperature temp : temps) {
                         System.out.println(temp.name + ": " + temp.value + " C");
-                        if(temp.name.contains("GPU Core")){
-                            sensorsData.put(temp.name, temp.value);   
+                        if (temp.name.contains("GPU Core")) {
+                            sensorsData.put(temp.name, temp.value);
                         }
                     }
 
@@ -116,11 +119,11 @@ public class ScreenController implements Initializable {
                     List<Load> loads = gpu.sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        if(load.name.contains("GPU Core")){
-                            sensorsData.put(load.name, load.value);   
-                        }else if(load.name.contains("Controller")){
+                        if (load.name.contains("GPU Core")) {
                             sensorsData.put(load.name, load.value);
-                        }else if(load.name.contains("Memory")){
+                        } else if (load.name.contains("Controller")) {
+                            sensorsData.put(load.name, load.value);
+                        } else if (load.name.contains("Memory")) {
                             sensorsData.put(load.name, load.value);
                         }
                     }
@@ -185,7 +188,7 @@ public class ScreenController implements Initializable {
         System.out.println("------------------------------------------------------------");
         List<String> parsedData = dataParser(sensorsData);
         String dataString = "";
-        for(String s : parsedData){
+        for (String s : parsedData) {
             dataString += s + "\n";
         }
         sensorsDisplay.setText(dataString);
@@ -194,23 +197,28 @@ public class ScreenController implements Initializable {
     }
 
     public void createSensorsTask() {
+        firstIteration = true;
         if (sensorsTask == null) {
             sensorsTask = new Task<Void>() {
                 @Override
-                public Void call() {
-                    boolean firstIteration = true;
+                public Void call() throws Exception {
                     while (!isCancelled()) {
-                        try {
-                            Components components = periodicRead();
-                            if (firstIteration) {
-                                initializeviewTree(components);
-                                firstIteration = false;
+                        //Components components = periodicRead();
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (firstIteration) {
+                                        //initializeviewTree(components);
+                                        firstIteration = false;
+                                    }
+                                } finally {
+                                    latch.countDown();
+                                }
                             }
-                            //TODO: maybe timer
-                            Thread.sleep(1000);
-                        } catch (Exception ex) {
-                            sensorsDisplay.setText("Error:\n" + ex.toString());
-                        }
+                        });
+                        latch.await();
                     }
                     return null;
                 }
@@ -351,7 +359,7 @@ public class ScreenController implements Initializable {
         //treeView.selectionModelProperty().get().selectFirst();
         treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateSelectedItem(newValue));
     }
-    
+
     private void updateSelectedItem(TreeItem<Map> newValue) {
         try {
             System.out.println("toggled: " + newValue.getValue().get("position"));
@@ -360,39 +368,39 @@ public class ScreenController implements Initializable {
             ex.printStackTrace();
         }
     }
-    
-    private List<String> dataParser(Map<String, Double> data){
+
+    private List<String> dataParser(Map<String, Double> data) {
         final String placeHolder = "${CPULOAD}";
         List<String> strings = new ArrayList<>();
         strings.add("Processor");
         Double cpuLoadTotal = 0.0;
         int divider = 0;
-        for(String k : data.keySet()){
-            if(k.contains("Load CPU Total")){
+        for (String k : data.keySet()) {
+            if (k.contains("Load CPU Total")) {
                 cpuLoadTotal += data.get(k);
                 divider++;
-                if(!strings.contains(placeHolder)){
+                if (!strings.contains(placeHolder)) {
                     strings.add(placeHolder);
                 }
-            }else if(k.contains("Load Memory")){
+            } else if (k.contains("Load Memory")) {
                 strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%");
-            }else if(k.contains("Temp GPU Core")){
+            } else if (k.contains("Temp GPU Core")) {
                 strings.add("Graphic");
                 strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C");
-            }else if(k.contains("Load GPU Core")){
+            } else if (k.contains("Load GPU Core")) {
                 strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%");
-            }else if(k.contains("Load GPU Memory Controller")){
+            } else if (k.contains("Load GPU Memory Controller")) {
                 strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%");
-            }else if(k.contains("Load GPU Memory")){
+            } else if (k.contains("Load GPU Memory")) {
                 strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%");
             }
         }
         strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
         return strings;
     }
-    
-    private void dataToLcd(List<String> data){
-        for(String s : data){
+
+    private void dataToLcd(List<String> data) {
+        for (String s : data) {
             connectionController.writeToLcd(s);
         }
     }

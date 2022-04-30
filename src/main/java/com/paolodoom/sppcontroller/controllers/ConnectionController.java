@@ -9,6 +9,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.paolodoom.sppcontroller.controllers.automation.AutomationController;
 import com.paolodoom.sppcontroller.models.ConnectionState;
 import com.paolodoom.sppcontroller.services.SppService;
+import com.paolodoom.sppcontroller.services.BTService;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.CountDownLatch;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -44,14 +47,20 @@ public class ConnectionController implements Initializable {
     private Button refreshButton;
 
     SppService spp = new SppService();
+    BTService bt = new BTService();
     List<SerialPort> sps = Collections.emptyList();
     SerialPort receivePort, sendPort;
     Task readTask, connectionTask;
     AutomationController automationController;
+    ScreenController screenController;
     ConnectionState connectionButtonState = ConnectionState.disconnected;
 
     public void setAutomationController(AutomationController automationController) {
         this.automationController = automationController;
+    }
+
+    public void setScreenController(ScreenController screenController) {
+        this.screenController = screenController;
     }
 
     /**
@@ -81,20 +90,25 @@ public class ConnectionController implements Initializable {
     }
 
     public void disconnect() {
-        if (connectionTask != null) {
-            if (connectionTask.isRunning()) {
-                connectionTask.cancel(true);
-            }
-            connectionTask = null;
-        }
         if (readTask != null) {
             if (readTask.isRunning()) {
                 readTask.cancel(true);
             }
             readTask = null;
         }
+        if (screenController != null) {
+            screenController.stopSensorsTask();
+        }
+        if (connectionTask != null) {
+            if (connectionTask.isRunning()) {
+                connectionTask.cancel(true);
+            }
+            connectionTask = null;
+        }
+
         spp.disconnect(receivePort, sendPort);
-        debugLog.clear();
+        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Disconnected\n");
+        //debugLog.clear();
         setStateConnectionButton(ConnectionState.disconnected);
     }
 
@@ -168,35 +182,62 @@ public class ConnectionController implements Initializable {
         if (readTask == null) {
             readTask = new Task<Void>() {
                 @Override
-                public Void call() {
+                public Void call() throws Exception {
                     while (true) {
                         if (!isCancelled()) {
-                            try {
-                                String readedString = spp.read(receivePort);
-                                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - " + readedString + (readedString.contains("\n") ? "" : "\n"));
-                                automationController.execAutomation(readedString);
-                            } catch (IOException ex) {
-                                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Read " + ex.toString() + "\n");
-                            }
+                            String readedString = spp.read(receivePort);
+                            final CountDownLatch latch = new CountDownLatch(1);
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        try {
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - " + readedString + (readedString.contains("\n") ? "" : "\n"));
+                                            automationController.execAutomation(readedString);
+                                        } catch (IOException ex) {
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read " + ex.toString() + "\n");
+                                        }
+                                    } finally {
+                                        latch.countDown();
+                                    }
+                                }
+                            });
+                            latch.await();
                         }
                     }
                 }
             };
             readTask.setOnFailed(e -> {
-                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Read failed\n");
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read failed\n");
             });
         }
     }
 
     public void createConnectionTask() {
         if (connectionTask == null) {
+            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
             connectionTask = new Task<Void>() {
                 @Override
-                public Void call() {
+                public Void call() throws Exception {
                     if (!isCancelled()) {
-                        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Connecting TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                        try {
+                            bt.go();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                         spp.connect(receivePort, sendPort);
-                        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Connected TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                                } finally {
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
                     }
                     return null;
                 }
@@ -205,7 +246,7 @@ public class ConnectionController implements Initializable {
                 connectionTask.cancel(true);
                 connectionTask = null;
                 setStateConnectionButton(ConnectionState.disconnected);
-                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Connection failed\n");
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connection failed\n");
             });
             connectionTask.setOnSucceeded(e -> {
                 connectionTask.cancel(true);
@@ -221,10 +262,10 @@ public class ConnectionController implements Initializable {
         try {
             if (ConnectionState.connected == connectionButtonState) {
                 spp.write(sendPort, data);
-                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Write " + data + "\n");
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + data + "\n");
             }
         } catch (Exception e) {
-            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Write failed\n");
+            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write failed\n");
         }
     }
 }

@@ -4,6 +4,7 @@ module com.paolodoom.sppcontroller {
     requires com.fazecast.jSerialComm;
     requires java.base;
     requires jSensors;
+    requires bluecove;
 
     opens com.paolodoom.sppcontroller to javafx.fxml;
     exports com.paolodoom.sppcontroller;

@@ -23,15 +23,12 @@ public class SppService {
     }
 
     public void connect(SerialPort readPort, SerialPort writePort) {
+        readPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
+        readPort.setBaudRate(9600);
+        writePort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 1000);
+        writePort.setComPortParameters(9600, 8, 1, 0, true);
         readPort.openPort(1000);
         writePort.openPort(1000);
-        readPort.setBaudRate(9600);
-        writePort.setBaudRate(9600);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
     }
 
     public void disconnect(SerialPort readPort, SerialPort writePort) {
@@ -44,7 +41,6 @@ public class SppService {
     }
 
     public String read(SerialPort readPort) {
-        readPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
         try {
             byte[] readBuffer = new byte[(int) chunkSize];
             int numRead = readPort.readBytes(readBuffer, readBuffer.length);
@@ -56,13 +52,12 @@ public class SppService {
     }
 
     public void write(SerialPort writePort, String data) {
-        writePort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
         byte[] writeBuffer = data.getBytes();
         double chunks = writeBuffer.length / chunkSize;
         int iterations = ((int) chunks) + ((chunks - ((int) chunks)) > 0.0 ? 1 : 0);
         for (int i = 0; i < iterations; i++) {
             byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) chunkSize), (i * ((int) chunkSize)) + ((int) chunkSize));
-            int numWrite = writePort.writeBytes(chunk, chunk.length);
+            int numWrite = writePort.writeBytes(chunk, chunk.length + 1);
             System.out.println("Write " + numWrite + " bytes.");
             System.out.println("Data " + new String(chunk));
         }

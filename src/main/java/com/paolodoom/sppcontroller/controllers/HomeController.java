@@ -53,6 +53,8 @@ public class HomeController implements Initializable {
             screenTab.getChildren().add(loader.load());
             screenController = loader.getController();
             screenController.setConnectionController(connectionController);
+            
+            connectionController.setScreenController(screenController);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -62,5 +64,8 @@ public class HomeController implements Initializable {
         if(screenController!=null){
             screenController.stopSensorsTask();
         }
+        if(connectionController!=null){
+            connectionController.disconnect();
+        } 
     }
 }
