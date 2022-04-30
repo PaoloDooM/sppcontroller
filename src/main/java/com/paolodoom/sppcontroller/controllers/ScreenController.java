@@ -16,7 +16,9 @@ import com.profesorfalken.jsensors.model.sensors.Fan;
 import com.profesorfalken.jsensors.model.sensors.Load;
 import com.profesorfalken.jsensors.model.sensors.Temperature;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -36,6 +38,7 @@ public class ScreenController implements Initializable {
 
     Task sensorsTask;
     ConnectionController connectionController;
+    Map<String, Double> sensorsData;
 
     @FXML
     private Text sensorsDisplay;
@@ -53,34 +56,35 @@ public class ScreenController implements Initializable {
 
     public Components periodicRead() {
         Components components = JSensors.get.components();
-        sensorsDisplay.setText("");
+        sensorsData = new HashMap<>();
         List<Cpu> cpus = components.cpus;
         if (cpus != null) {
-            for (final Cpu cpu : cpus) {
-                System.out.println("Found CPU component: " + cpu.name);
-                sensorsDisplay.setText(sensorsDisplay.getText() + cpu.name + "\n");
+            for (int i = 0; i < cpus.size(); i++) {
+                System.out.println("Found CPU component: " + cpus.get(i).name);
 
-                if (cpu.sensors != null) {
+                if (cpus.get(i).sensors != null) {
                     System.out.println("Sensors: ");
 
                     //Print temperatures
-                    List<Temperature> temps = cpu.sensors.temperatures;
+                    List<Temperature> temps = cpus.get(i).sensors.temperatures;
                     for (final Temperature temp : temps) {
                         System.out.println(temp.name + ": " + temp.value + " C");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + temp.name + ": " + temp.value + " C" + "\n");
                     }
 
                     //Print fan speed
-                    List<Fan> fans = cpu.sensors.fans;
+                    List<Fan> fans = cpus.get(i).sensors.fans;
                     for (final Fan fan : fans) {
                         System.out.println(fan.name + ": " + fan.value + " RPM");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + fan.name + ": " + fan.value + " RPM" + "\n");
                     }
 
-                    List<Load> loads = cpu.sensors.loads;
+                    List<Load> loads = cpus.get(i).sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + load.name + ": " + load.value + " %" + "\n");
+                        if(load.name.contains("CPU Total")){
+                            sensorsData.put(load.name + "$" + i, load.value);   
+                        }else if(load.name.contains("Memory")){
+                            sensorsData.put(load.name, load.value);
+                        }
                     }
                 }
             }
@@ -90,7 +94,6 @@ public class ScreenController implements Initializable {
         if (gpus != null) {
             for (final Gpu gpu : gpus) {
                 System.out.println("Found GPU component: " + gpu.name);
-                sensorsDisplay.setText(sensorsDisplay.getText() + gpu.name + "\n");
 
                 if (gpu.sensors != null) {
                     System.out.println("Sensors: ");
@@ -99,20 +102,27 @@ public class ScreenController implements Initializable {
                     List<Temperature> temps = gpu.sensors.temperatures;
                     for (final Temperature temp : temps) {
                         System.out.println(temp.name + ": " + temp.value + " C");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + temp.name + ": " + temp.value + " C" + "\n");
+                        if(temp.name.contains("GPU Core")){
+                            sensorsData.put(temp.name, temp.value);   
+                        }
                     }
 
                     //Print fan speed
                     List<Fan> fans = gpu.sensors.fans;
                     for (final Fan fan : fans) {
                         System.out.println(fan.name + ": " + fan.value + " RPM");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + fan.name + ": " + fan.value + " RPM" + "\n");
                     }
 
                     List<Load> loads = gpu.sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + load.name + ": " + load.value + " %" + "\n");
+                        if(load.name.contains("GPU Core")){
+                            sensorsData.put(load.name, load.value);   
+                        }else if(load.name.contains("Controller")){
+                            sensorsData.put(load.name, load.value);
+                        }else if(load.name.contains("Memory")){
+                            sensorsData.put(load.name, load.value);
+                        }
                     }
                 }
             }
@@ -122,7 +132,6 @@ public class ScreenController implements Initializable {
         if (disks != null) {
             for (int i = 0; i < disks.size(); i++) {
                 System.out.println("Found Disk component: " + disks.get(i).name);
-                sensorsDisplay.setText(sensorsDisplay.getText() + disks.get(i).name + " " + i + "\n");
 
                 if (disks.get(i).sensors != null) {
                     System.out.println("Sensors: ");
@@ -131,20 +140,17 @@ public class ScreenController implements Initializable {
                     List<Temperature> temps = disks.get(i).sensors.temperatures;
                     for (final Temperature temp : temps) {
                         System.out.println(temp.name + ": " + temp.value + " C");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + temp.name + ": " + temp.value + " C" + "\n");
                     }
 
                     //Print fan speed
                     List<Fan> fans = disks.get(i).sensors.fans;
                     for (final Fan fan : fans) {
                         System.out.println(fan.name + ": " + fan.value + " RPM");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + fan.name + ": " + fan.value + " RPM" + "\n");
                     }
 
                     List<Load> loads = disks.get(i).sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + load.name + ": " + load.value + " %" + "\n");
                     }
                 }
             }
@@ -153,7 +159,6 @@ public class ScreenController implements Initializable {
         if (mobos != null) {
             for (final Mobo mobo : mobos) {
                 System.out.println("Found Mobo component: " + mobo.name);
-                sensorsDisplay.setText(sensorsDisplay.getText() + mobo.name + "\n");
 
                 if (mobo.sensors != null) {
                     System.out.println("Sensors: ");
@@ -162,25 +167,29 @@ public class ScreenController implements Initializable {
                     List<Temperature> temps = mobo.sensors.temperatures;
                     for (final Temperature temp : temps) {
                         System.out.println(temp.name + ": " + temp.value + " C");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + temp.name + ": " + temp.value + " C" + "\n");
                     }
 
                     //Print fan speed
                     List<Fan> fans = mobo.sensors.fans;
                     for (final Fan fan : fans) {
                         System.out.println(fan.name + ": " + fan.value + " RPM");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + fan.name + ": " + fan.value + " RPM" + "\n");
                     }
 
                     List<Load> loads = mobo.sensors.loads;
                     for (final Load load : loads) {
                         System.out.println(load.name + ": " + load.value + " %");
-                        sensorsDisplay.setText(sensorsDisplay.getText() + "   " + load.name + ": " + load.value + " %" + "\n");
                     }
                 }
             }
         }
         System.out.println("------------------------------------------------------------");
+        List<String> parsedData = dataParser(sensorsData);
+        String dataString = "";
+        for(String s : parsedData){
+            dataString += s + "\n";
+        }
+        sensorsDisplay.setText(dataString);
+        dataToLcd(parsedData);
         return components;
     }
 
@@ -349,6 +358,42 @@ public class ScreenController implements Initializable {
             System.out.println("interactive: " + newValue.getValue().get("interactive"));
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+    
+    private List<String> dataParser(Map<String, Double> data){
+        final String placeHolder = "${CPULOAD}";
+        List<String> strings = new ArrayList<>();
+        strings.add("Processor");
+        Double cpuLoadTotal = 0.0;
+        int divider = 0;
+        for(String k : data.keySet()){
+            if(k.contains("Load CPU Total")){
+                cpuLoadTotal += data.get(k);
+                divider++;
+                if(!strings.contains(placeHolder)){
+                    strings.add(placeHolder);
+                }
+            }else if(k.contains("Load Memory")){
+                strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%");
+            }else if(k.contains("Temp GPU Core")){
+                strings.add("Graphic");
+                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C");
+            }else if(k.contains("Load GPU Core")){
+                strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%");
+            }else if(k.contains("Load GPU Memory Controller")){
+                strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%");
+            }else if(k.contains("Load GPU Memory")){
+                strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%");
+            }
+        }
+        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
+        return strings;
+    }
+    
+    private void dataToLcd(List<String> data){
+        for(String s : data){
+            connectionController.writeToLcd(s);
         }
     }
 }

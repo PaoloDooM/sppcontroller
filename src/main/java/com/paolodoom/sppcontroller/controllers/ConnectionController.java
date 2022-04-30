@@ -46,7 +46,7 @@ public class ConnectionController implements Initializable {
     SppService spp = new SppService();
     List<SerialPort> sps = Collections.emptyList();
     SerialPort receivePort, sendPort;
-    Task readTask, writeTask, connectionTask;
+    Task readTask, connectionTask;
     AutomationController automationController;
     ConnectionState connectionButtonState = ConnectionState.disconnected;
 
@@ -176,7 +176,7 @@ public class ConnectionController implements Initializable {
                                 debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - " + readedString + (readedString.contains("\n") ? "" : "\n"));
                                 automationController.execAutomation(readedString);
                             } catch (IOException ex) {
-                                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - " + ex.toString() + "\n");
+                                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Read " + ex.toString() + "\n");
                             }
                         }
                     }
@@ -214,6 +214,17 @@ public class ConnectionController implements Initializable {
                 createReadTask();
                 new Thread(readTask).start();
             });
+        }
+    }
+
+    public void writeToLcd(String data) {
+        try {
+            if (ConnectionState.connected == connectionButtonState) {
+                spp.write(sendPort, data);
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Write " + data + "\n");
+            }
+        } catch (Exception e) {
+            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + " - Write failed\n");
         }
     }
 }

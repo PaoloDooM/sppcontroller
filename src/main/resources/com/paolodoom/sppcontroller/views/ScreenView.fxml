@@ -12,7 +12,10 @@
    <children>
       <TextFlow layoutX="286.0" layoutY="50.0" maxHeight="300.0" maxWidth="300.0" minHeight="300.0" minWidth="300.0" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: black;">
          <children>
-            <Text fx:id="sensorsDisplay" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="sensors" />
+            <Text fx:id="sensorsDisplay" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="sensors">
+               <font>
+                  <Font size="24.0" />
+               </font></Text>
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
