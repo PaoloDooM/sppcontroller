@@ -226,8 +226,8 @@ public class BTService {
         os.write("1111".getBytes()); //just send '1' to the device
         os.flush();
 
-        byte[] b = is.readNBytes(4);
-        System.out.println("4:" + (new String(b)));
+        byte[] b = is.readNBytes(5);
+        System.out.println("5:" + (new String(b)));
 
         os.close();
         is.close();
