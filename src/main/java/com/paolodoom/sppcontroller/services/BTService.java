@@ -34,6 +34,7 @@ public class BTService {
     OutputStream dos;
     InputStream dis;
     StreamConnection sconn;
+    public final float chunkSize = 4;
 
     public List<RemoteDevice> getDevices() throws Exception {
         devices = new ArrayList<>();
@@ -93,7 +94,7 @@ public class BTService {
             @Override
             public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
                 Arrays.asList(servRecord).forEach(s -> {
-                    if(hc05Url == null){
+                    if (hc05Url == null) {
                         hc05Url = s.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
                     }
                     System.out.println("Service: " + s.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
@@ -130,107 +131,21 @@ public class BTService {
     }
 
     public void write(String data) throws Exception {
-        dos.write(data.getBytes());
-        dos.flush();
+        byte[] writeBuffer = data.getBytes();
+        double chunks = writeBuffer.length / chunkSize;
+        int iterations = ((int) chunks) + ((chunks - ((int) chunks)) > 0.0 ? 1 : 0);
+        for (int i = 0; i < iterations; i++) {
+            byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) chunkSize), (i * ((int) chunkSize)) + ((int) chunkSize));
+            dos.write(data.getBytes());
+            dos.flush();
+            System.out.println("Write " + chunk.length + " bytes.");
+            System.out.println("Data " + new String(chunk));
+        }
     }
 
     public String read() throws Exception {
-        byte[] b = dis.readNBytes(4);
-        System.out.println("4: " + (new String(b)));
+        byte[] b = dis.readNBytes((int) chunkSize);
+        System.out.println("Read " + b.length + " bytes: " + (new String(b)));
         return "Read: " + (new String(b));
-    }
-
-    public void go() throws Exception {
-        //scan for all devices:
-        scanFinished = false;
-        LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
-            @Override
-            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-                try {
-                    String name = btDevice.getFriendlyName(false);
-                    System.out.format("%s (%s)\n", name, btDevice.getBluetoothAddress());
-                    if (name.matches("HC.*")) {
-                        hc05device = btDevice;
-                        System.out.println("got it!");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void inquiryCompleted(int discType) {
-                scanFinished = true;
-            }
-
-            @Override
-            public void serviceSearchCompleted(int transID, int respCode) {
-            }
-
-            @Override
-            public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-            }
-        });
-        while (!scanFinished) {
-            //this is easier to understand (for me) as the thread stuff examples from bluecove
-            Thread.sleep(500);
-        }
-
-        //PaoloDooM: fails in my system, needs a method for get UUID vals.
-        //search for services:
-        UUID uuid = new UUID(0x1101); //scan for btspp://... services (as HC-05 offers it)
-        UUID[] searchUuidSet = new UUID[]{uuid};
-        int[] attrIDs = new int[]{
-            0x0100 // service name
-        };
-        scanFinished = false;
-        LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIDs, searchUuidSet,
-                hc05device, new DiscoveryListener() {
-            @Override
-            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-            }
-
-            @Override
-            public void inquiryCompleted(int discType) {
-            }
-
-            @Override
-            public void serviceSearchCompleted(int transID, int respCode) {
-                scanFinished = true;
-            }
-
-            @Override
-            public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-                for (int i = 0; i < servRecord.length; i++) {
-                    hc05Url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-                    if (hc05Url != null) {
-                        break; //take the first one
-                    }
-                }
-            }
-        });
-
-        while (!scanFinished) {
-            Thread.sleep(500);
-        }
-
-        System.out.println(hc05device.getBluetoothAddress());
-        hc05Url = hc05Url.replace("hc05Addr", hc05device.getBluetoothAddress());
-        System.out.println(hc05Url);
-
-        //if you know your hc05Url this is all you need:
-        StreamConnection streamConnection = (StreamConnection) Connector.open(hc05Url);
-        OutputStream os = streamConnection.openOutputStream();
-        InputStream is = streamConnection.openInputStream();
-
-        os.write("1111".getBytes()); //just send '1' to the device
-        os.flush();
-
-        byte[] b = is.readNBytes(5);
-        System.out.println("5:" + (new String(b)));
-
-        os.close();
-        is.close();
-        streamConnection.close();
     }
 }

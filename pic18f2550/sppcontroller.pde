@@ -9,7 +9,7 @@ Board: PIC18F2550
 
 int btnsAD[NB] = {17, 10, 11, 12}, i;
 BOOL btnsSt[NB] = {false,   false,   false,   false};
-char* btnsCm[NB] = {" 00\n"," 01\n"," 02\n"," 03\n"};
+char* btnsCm[NB] = {"$00$","$01$","$02$","$03$"};
 
 void setup() {
     pinMode(USERLED, OUTPUT);
@@ -37,8 +37,7 @@ readBtns(){
         if(digitalRead(btnsAD[i])!=btnsSt[i]){
             if(!btnsSt[i]){
                 toggle(USERLED);
-                Serial.print(btnsCm[i]);
-                Serial.flush();
+                Serial.printf(btnsCm[i]);
             }
             btnsSt[i]=!btnsSt[i];
          }
@@ -46,7 +45,7 @@ readBtns(){
 }
 
 void writeLcd(char* data){
-    if(!strcmp(data, "$es$")){
+    if(!strcmp(data, "$cl$")){
          lcdi2c.clear();
          lcdi2c.home();
     }else{
@@ -55,11 +54,7 @@ void writeLcd(char* data){
 }
 
 void readData(){
-    char data[5]; 
     if(Serial.available()){
-        strcpy(data, Serial.getString());
-        writeLcd(data);
-        Serial.print(strcat("->", data));
-        Serial.flush();
+        writeLcd(Serial.getString());
     }
 }
