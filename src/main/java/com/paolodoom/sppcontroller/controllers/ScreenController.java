@@ -190,7 +190,7 @@ public class ScreenController implements Initializable {
         List<String> parsedData = dataParser(sensorsData);
         String dataString = "";
         for (String s : parsedData.subList(1, parsedData.size())) {
-            dataString += s;
+            dataString += s + "\n";
         }
         sensorsDisplay.setText(dataString);
         dataToLcd(parsedData);
@@ -375,7 +375,7 @@ public class ScreenController implements Initializable {
         final String placeHolder = "${CPULOAD}";
         List<String> strings = new ArrayList<>();
         strings.add("$cl$");
-        strings.add("Processor\r\n");
+        strings.add("Processor");
         Double cpuLoadTotal = 0.0;
         int divider = 0;
         for (String k : data.keySet()) {
@@ -386,19 +386,19 @@ public class ScreenController implements Initializable {
                     strings.add(placeHolder);
                 }
             } else if (k.contains("Load Memory")) {
-                strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%\r\n");
+                strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%");
             } else if (k.contains("Temp GPU Core")) {
-                strings.add("Graphic\r\n");
-                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C\r\n");
+                strings.add("Graphic");
+                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C");
             } else if (k.contains("Load GPU Core")) {
-                strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%\r\n");
+                strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%");
             } else if (k.contains("Load GPU Memory Controller")) {
-                //strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%\r\n");
+                //strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%");
             } else if (k.contains("Load GPU Memory")) {
-                strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%\r\n");
+                strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%");
             }
         }
-        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%\r\n");
+        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
         return strings;
     }
 

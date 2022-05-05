@@ -51,13 +51,18 @@ readBtns(){
 void writeLcd(char* data){
     if(strstr(data, "$cl$") != NULL){
          OLED.clearScreen(intf);
+    }else{
+        OLED.printf(intf, data);
     }
-    OLED.printf(intf, data);
 }
 
 void readData(){
     if(Serial.available()){
-        writeLcd(Serial.getString());
+       char data[5];
+        for(i = 0; i<5; i++){
+            data[i] = Serial.readChar();
+        }
+        writeLcd(data);
     }
     OLED.refresh(intf);
 }
