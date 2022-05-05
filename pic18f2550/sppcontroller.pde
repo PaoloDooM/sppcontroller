@@ -5,11 +5,15 @@ Description: sppcontroller
 Board: PIC18F2550
 -----------------------------------------------------*/
 
+#include <fonts/font5x7.h>
+#define OLED_SSD1306
+#define OLED_128X64
 #define NB 4
 
 int btnsAD[NB] = {17, 10, 11, 12}, i;
 BOOL btnsSt[NB] = {false,   false,   false,   false};
 char* btnsCm[NB] = {"$00$","$01$","$02$","$03$"};
+const u8 intf = OLED_I2C1;
 
 void setup() {
     pinMode(USERLED, OUTPUT);
@@ -17,14 +21,14 @@ void setup() {
         pinMode(btnsAD[i], INPUT);
     }
     Serial.begin(9600);
-    lcdi2c.init(128, 64, 0x2C);
-    lcdi2c.backlight();
-    lcdi2c.autoscroll();
-    lcdi2c.clear();
-    lcdi2c.setCursor(62, 31);
-    lcdi2c.printf("HC-06");
-    lcdi2c.setCursor(58, 33);
-    lcdi2c.printf("PASS:  1234");
+    
+    OLED.init(intf, 0x78);
+    OLED.setFont(intf, font5x7);
+    OLED.clearScreen(intf);
+    
+    OLED.printf(intf, "DEVICE: HC-06\r\nPASSWORD: 1234");
+    
+    OLED.displayOn(intf);
 }
 
 void loop() {
@@ -45,16 +49,15 @@ readBtns(){
 }
 
 void writeLcd(char* data){
-    if(!strcmp(data, "$cl$")){
-         lcdi2c.clear();
-         lcdi2c.home();
-    }else{
-         lcdi2c.printf(data);
+    if(strstr(data, "$cl$") != NULL){
+         OLED.clearScreen(intf);
     }
+    OLED.printf(intf, data);
 }
 
 void readData(){
     if(Serial.available()){
         writeLcd(Serial.getString());
     }
+    OLED.refresh(intf);
 }

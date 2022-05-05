@@ -189,8 +189,8 @@ public class ScreenController implements Initializable {
         System.out.println("------------------------------------------------------------");
         List<String> parsedData = dataParser(sensorsData);
         String dataString = "";
-        for (String s : parsedData) {
-            dataString += s + "\n";
+        for (String s : parsedData.subList(1, parsedData.size())) {
+            dataString += s;
         }
         sensorsDisplay.setText(dataString);
         dataToLcd(parsedData);
@@ -220,6 +220,7 @@ public class ScreenController implements Initializable {
                             }
                         });
                         latch.await();
+                        Thread.sleep(1000);
                     }
                     return null;
                 }
@@ -373,7 +374,8 @@ public class ScreenController implements Initializable {
     private List<String> dataParser(Map<String, Double> data) {
         final String placeHolder = "${CPULOAD}";
         List<String> strings = new ArrayList<>();
-        strings.add("Processor");
+        strings.add("$cl$");
+        strings.add("Processor\r\n");
         Double cpuLoadTotal = 0.0;
         int divider = 0;
         for (String k : data.keySet()) {
@@ -384,19 +386,19 @@ public class ScreenController implements Initializable {
                     strings.add(placeHolder);
                 }
             } else if (k.contains("Load Memory")) {
-                strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%");
+                strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%\r\n");
             } else if (k.contains("Temp GPU Core")) {
-                strings.add("Graphic");
-                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C");
+                strings.add("Graphic\r\n");
+                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C\r\n");
             } else if (k.contains("Load GPU Core")) {
-                strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%");
+                strings.add("   GPU: " + String.format("%.2f", data.get(k)) + "%\r\n");
             } else if (k.contains("Load GPU Memory Controller")) {
-                strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%");
+                //strings.add("   memCtrl: " + String.format("%.2f", data.get(k)) + "%\r\n");
             } else if (k.contains("Load GPU Memory")) {
-                strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%");
+                strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%\r\n");
             }
         }
-        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
+        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%\r\n");
         return strings;
     }
 
