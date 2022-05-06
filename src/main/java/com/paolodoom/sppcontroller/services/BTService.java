@@ -34,8 +34,7 @@ public class BTService {
     OutputStream dos;
     InputStream dis;
     StreamConnection sconn;
-    public final double receiveSize = 4.0;
-    public final double sendSize = 4.0;
+    public final double chunkSize = 4.0;
 
     public List<RemoteDevice> getDevices() throws Exception {
         devices = new ArrayList<>();
@@ -132,11 +131,11 @@ public class BTService {
     }
 
     public void write(String data) throws Exception {
-        byte[] writeBuffer = (data + "\r").getBytes();
-        double chunks = writeBuffer.length / sendSize;
+        byte[] writeBuffer = data.getBytes();
+        double chunks = writeBuffer.length / chunkSize;
         int iterations = ((int) chunks) + ((chunks - ((int) chunks)) > 0.0 ? 1 : 0);
         for (int i = 0; i < iterations; i++) {
-            byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) sendSize), (i * ((int) sendSize)) + ((int) sendSize));
+            byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) chunkSize), (i * ((int) chunkSize)) + ((int) chunkSize));
             dos.write(data.getBytes());
             dos.flush();
             System.out.println("Write " + chunk.length + " bytes.");
@@ -145,7 +144,7 @@ public class BTService {
     }
 
     public String read() throws Exception {
-        byte[] b = dis.readNBytes((int) receiveSize);
+        byte[] b = dis.readNBytes((int) chunkSize);
         System.out.println("Read " + b.length + " bytes: " + (new String(b)));
         return "Read: " + (new String(b));
     }
