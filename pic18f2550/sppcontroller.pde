@@ -5,11 +5,11 @@ Description: sppcontroller
 Board: PIC18F2550
 -----------------------------------------------------*/
 
-#include <fonts/font5x7.h>
+#include <fonts/Wendy3x5.h>
 #define OLED_SSD1306
 #define OLED_128X64
 #define NB 4
-#define BS 4
+#define BS 8
 
 int btnsAD[NB] = {17, 10, 11, 12}, i;
 BOOL btnsSt[NB] = {false,   false,   false,   false};
@@ -21,11 +21,11 @@ void setup() {
     for(i = 0; i < NB; i++){
         pinMode(btnsAD[i], INPUT);
     }
-    
+
     Serial.begin(9600);
     
     OLED.init(intf, 0x78);
-    OLED.setFont(intf, font5x7);
+    OLED.setFont(intf, Wendy3x5);
     OLED.clearScreen(intf);
     OLED.print(intf, "DEVICE: HC-06\r\n\r\nPASSWORD: 1234");
     OLED.displayOn(intf);
@@ -53,7 +53,9 @@ void writeLcd(char* data){
     if(strstr(data, "$cl$") != NULL){
          OLED.clearScreen(intf);
     }else{
-        OLED.print(intf, data);
+         for(i = 0; i<BS; i++){
+            OLED.printChar(intf, data[i]);
+        }
     }
 }
 
@@ -61,9 +63,8 @@ void readData(){
     if(Serial.available()){
        char data[BS];
         for(i = 0; i<BS; i++){
-            data[i] = Serial.read();
+            data[i] = Serial.readChar();
         }
-        Serial.flush();
         writeLcd(data);
     }
     OLED.refresh(intf);

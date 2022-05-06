@@ -403,8 +403,11 @@ public class ScreenController implements Initializable {
     }
 
     private void dataToLcd(List<String> data) {
-        for (String s : data) {
-            connectionController.writeToLcd(s);
+        for (int i = 0; i < data.size(); i++) {
+            connectionController.writeToLcd(data.get(i));
+            if (i != 0 || i != data.size() - 1) {
+                connectionController.writeToLcd("\r\n");
+            }
         }
     }
 }

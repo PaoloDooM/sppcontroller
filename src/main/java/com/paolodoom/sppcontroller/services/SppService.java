@@ -15,7 +15,8 @@ import java.util.List;
  */
 public class SppService {
 
-    public final float chunkSize = 4;
+    public final double readSize = 4.0;
+    public final double writeSize = 8.0;
 
     public List<SerialPort> getPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
@@ -42,7 +43,7 @@ public class SppService {
 
     public String read(SerialPort readPort) {
         try {
-            byte[] readBuffer = new byte[(int) chunkSize];
+            byte[] readBuffer = new byte[(int) readSize];
             int numRead = readPort.readBytes(readBuffer, readBuffer.length);
             return "Read " + numRead + " bytes: " + new String(readBuffer);
         } catch (Exception e) {
@@ -53,10 +54,10 @@ public class SppService {
 
     public void write(SerialPort writePort, String data) {
         byte[] writeBuffer = data.getBytes();
-        double chunks = writeBuffer.length / chunkSize;
+        double chunks = writeBuffer.length / writeSize;
         int iterations = ((int) chunks) + ((chunks - ((int) chunks)) > 0.0 ? 1 : 0);
         for (int i = 0; i < iterations; i++) {
-            byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) chunkSize), (i * ((int) chunkSize)) + ((int) chunkSize));
+            byte[] chunk = Arrays.copyOfRange(writeBuffer, i * ((int) writeSize), (i * ((int) writeSize)) + ((int) writeSize));
             int numWrite = writePort.writeBytes(chunk, chunk.length);
             System.out.println("Write " + numWrite + " bytes.");
             System.out.println("Data " + new String(chunk));
