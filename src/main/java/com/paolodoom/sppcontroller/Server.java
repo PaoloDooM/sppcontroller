@@ -5,13 +5,17 @@
  */
 package com.paolodoom.sppcontroller;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 /**
  *
  * @author PaoloDooM
  */
-public class Main {
-    public static void main(String[] args) throws Exception {
-        Server.main(args);
-        App.iniApp();
+@SpringBootApplication
+public class Server {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Server.class, args);
     }
 }
