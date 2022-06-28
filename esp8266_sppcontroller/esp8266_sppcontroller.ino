@@ -6,9 +6,10 @@
 #include <ESP8266mDNS.h>
 #include <Wire.h>
 #include <SSD1306Wire.h>
+#include <WebSocketsClient.h>
 #include "RouterConfig.h"
 
-#ifndef STASSID
+#ifndef STASSID || STAPSK
 #define STASSID "wifiName"
 #define STAPSK  "wifiPass"
 #endif
@@ -16,14 +17,17 @@
 #define NB 6
 
 int btnsSt[NB] = {0, 0, 0, 0, 0, 0}, i;
-char* btnsCm[NB] = {"$00$","$01$","$02$","$03$","$04$","$05$"};
+char* btnsCm[NB] = {"$00$", "$01$", "$02$", "$03$", "$04$", "$05$"};
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const int btnsAd[NB] = {D0, D1, D2, D5, D6, D7}, led = 13;
-String token;
+unsigned long messageInterval = 5000, lastUpdate = millis();
+bool connected = false, startWS = false;
+String token = "", serverIp = "";
 
 ESP8266WebServer server(80);
 SSD1306Wire display(0x3C, D4, D3);
+WebSocketsClient webSocket;
 
 void handleRoot() {
   digitalWrite(led, 1);
@@ -48,53 +52,132 @@ void handleNotFound() {
   digitalWrite(led, 0);
 }
 
-void handleConnect(){
-  if(server.arg("ipAddress")==""){
+void handleConnect() {
+  if (server.arg("ipAddress") == "") {
+    clearWsCfg();
     server.send(400, "text/plain", "Bad request");
-  }else{
+  } else {
     HTTPClient http;
     WiFiClient client;
-    http.begin(client, "http://" + server.arg("ipAddress") + ":53000/authenticate");
+    serverIp = server.arg("ipAddress");
+    http.begin(client, "http://" + serverIp + ":53000/authenticate");
     http.addHeader("Content-Type", "application/json");
     int httpCode = http.POST("{\"password\":\"9DTUdnKN5z4jPVaKYAdBjX7C\",\"username\":\"sppcontroller\"}");
-    if(httpCode == 200){  
+    if (httpCode == 200) {
       String json = http.getString();
       // Allocate the JSON document
       //
       // Inside the brackets, 256 is the capacity of the memory pool in bytes.
       // Don't forget to change this value to match your JSON document.
       // Use https://arduinojson.org/v6/assistant to compute the capacity.
-      StaticJsonDocument<256> doc;
+      StaticJsonDocument<300> doc;
       DeserializationError error = deserializeJson(doc, json);
       if (error) {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
+        clearWsCfg();
         server.send(500, "text/plain", "deserializeJson() failed");
-      }else{
+      } else {
         token = String(doc["token"]);
         Serial.print("Authenticated: ");
         Serial.println(json);
-        server.send(200, "text/plain", server.arg("ipAddress") + " = " + token);
+        startWS = true;
+        server.send(200, "text/plain", serverIp + " = " + token);
       }
-    }else{
-      server.send(httpCode, "text/plain", "Authentication fail");    
+    } else {
+      clearWsCfg();
+      server.send(httpCode, "text/plain", "Authentication fail");
     }
     http.end();
   }
 }
 
-void readBtns(){
-    for(i = 0; i < NB; i++){
-        if(digitalRead(btnsAd[i])!=btnsSt[i]){
-            if(!btnsSt[i]){
-              display.clear();
-              display.drawString(0, 0, WiFi.localIP().toString());
-              display.drawString(0, 30, btnsCm[i]);
-              display.display();
-            }
-            btnsSt[i]=!btnsSt[i];
-         }
+void clearWsCfg() {
+  serverIp = "";
+  token = "";
+}
+
+void sendMessage(String & msg) {
+    webSocket.sendTXT(msg.c_str(), msg.length() + 1);
+}
+
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED:
+      Serial.println("[WSc] Disconnected!\n");
+      connected = false;
+      break;
+    case WStype_CONNECTED: {
+        Serial.print("[WSc] Connected to url: ");
+        Serial.println((char*) payload);
+        connected = true;
+
+        String msg = "CONNECT\r\naccept-version:1.1,1.0\r\nheart-beat:10000,10000\r\n\r\n";
+        sendMessage(msg);
+
+        // send message to server when Connected
+        Serial.println("[WSc] SENT: Connected");;
+      }
+      break;
+    case WStype_TEXT:{
+        // #####################
+        // handle STOMP protocol
+        // #####################
+
+        String text = (char*) payload;
+      
+        Serial.print("[WSc] RESPONSE: ");
+        Serial.println(text);
+
+        if (text.startsWith("CONNECTED")) {
+
+          // subscribe to some channels
+
+          String msg = "SUBSCRIBE\nid:sub-0\ndestination:/topic/response\n\n";
+          sendMessage(msg);
+          delay(1000);
+
+          // and send a message
+
+          msg = "SEND\ndestination:/app/commands\n\n{\"uuid\":\"0\",\"type\":\"button\",\"data\":\"$00$\",\"code\":\"200\",\"message\":\"\"}";
+          sendMessage(msg);
+          delay(1000);
+                    
+        } else {
+
+        // do something with messages
+                    
+        }
+      }
+      break;
+    case WStype_BIN:
+      Serial.print("[WSc] get binary length: ");
+      Serial.println(length);
+      hexdump(payload, length);
+      break;
+    case WStype_PING:
+      // pong will be send automatically
+      Serial.println("[WSc] get ping\n");
+      break;
+    case WStype_PONG:
+      // answer to a ping we send
+      Serial.println("[WSc] get pong\n");
+      break;
+  }
+}
+
+void readBtns() {
+  for (i = 0; i < NB; i++) {
+    if (digitalRead(btnsAd[i]) != btnsSt[i]) {
+      if (!btnsSt[i]) {
+        display.clear();
+        display.drawString(0, 0, WiFi.localIP().toString());
+        display.drawString(0, 30, btnsCm[i]);
+        display.display();
+      }
+      btnsSt[i] = !btnsSt[i];
     }
+  }
 }
 
 void setup(void) {
@@ -117,7 +200,7 @@ void setup(void) {
     delay(500);
     Serial.print(".");
   }
-  
+
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
@@ -143,5 +226,25 @@ void setup(void) {
 void loop(void) {
   server.handleClient();
   readBtns();
+  if (!serverIp.isEmpty() && !token.isEmpty()) {
+    if (startWS) {
+      Serial.println("Starting WS");
+      webSocket.begin(serverIp, 53000, "/websocket");
+      String authHeader = "Authorization: Bearer " + token;
+      int authHeader_len = authHeader.length() + 1;
+      char authHeader_buf[authHeader_len];
+      authHeader.toCharArray(authHeader_buf, authHeader_len);
+      webSocket.setExtraHeaders(authHeader_buf);
+      webSocket.onEvent(webSocketEvent);
+      startWS = false;
+    }
+    webSocket.loop();
+    if (connected && lastUpdate + messageInterval < millis()) {
+      Serial.println("[WSc] SENT: Simple js client message!!");
+      String msg = "SEND\ndestination:/app/commands\n\n{\"uuid\":\"0\",\"type\":\"button\",\"data\":\"$01$\",\"code\":\"200\",\"message\":\"\"}";
+      sendMessage(msg);
+      lastUpdate = millis();
+    }
+  }
   MDNS.update();
 }
