@@ -204,14 +204,14 @@ public class ScreenController implements Initializable {
                 @Override
                 public Void call() throws Exception {
                     while (!isCancelled()) {
-                        Components components = periodicRead();
+                        //Components components = periodicRead();
                         final CountDownLatch latch = new CountDownLatch(1);
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
                                 try {
                                     if (firstIteration) {
-                                        initializeviewTree(components);
+                                        //initializeviewTree(components);
                                         firstIteration = false;
                                     }
                                 } finally {

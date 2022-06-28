@@ -50,7 +50,7 @@ public class JwtAuthenticationController {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok(token);
     }
     
     @RequestMapping(value = "/status", method = RequestMethod.GET)
