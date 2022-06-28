@@ -45,12 +45,20 @@ void handleNotFound() {
   digitalWrite(led, 0);
 }
 
+void handleConnect(){
+  if(server.arg("ipAddress")==""){
+    server.send(400, "text/plain", "Bad request");
+  }else{
+    server.send(200, "text/plain", server.arg("ipAddress"));
+  }
+}
+
 void readBtns(){
     for(i = 0; i < NB; i++){
         if(digitalRead(btnsAd[i])!=btnsSt[i]){
             if(!btnsSt[i]){
               display.clear();
-              display.drawString(0, 0, "NodeMCU");
+              display.drawString(0, 0, WiFi.localIP().toString());
               display.drawString(0, 30, btnsCm[i]);
               display.display();
             }
@@ -71,7 +79,7 @@ void setup(void) {
   display.flipScreenVertically();
   display.displayOn();
   display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 0, "NodeMCU");
+  display.drawString(0, 0, "Initializing");
   display.display();
 
   // Wait for connection
@@ -86,12 +94,17 @@ void setup(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  display.clear();
+  display.drawString(0, 0, WiFi.localIP().toString());
+  display.display();
+
   if (MDNS.begin("esp8266")) {
     Serial.println("MDNS responder started");
   }
 
   server.on("/", handleRoot);
   server.onNotFound(handleNotFound);
+  server.on("/connect", handleConnect);
 
   server.begin();
   Serial.println("HTTP server started");
