@@ -1,5 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <Wire.h>
@@ -18,6 +20,7 @@ char* btnsCm[NB] = {"$00$","$01$","$02$","$03$","$04$","$05$"};
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const int btnsAd[NB] = {D0, D1, D2, D5, D6, D7}, led = 13;
+String token;
 
 ESP8266WebServer server(80);
 SSD1306Wire display(0x3C, D4, D3);
@@ -49,7 +52,34 @@ void handleConnect(){
   if(server.arg("ipAddress")==""){
     server.send(400, "text/plain", "Bad request");
   }else{
-    server.send(200, "text/plain", server.arg("ipAddress"));
+    HTTPClient http;
+    WiFiClient client;
+    http.begin(client, "http://" + server.arg("ipAddress") + ":53000/authenticate");
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST("{\"password\":\"9DTUdnKN5z4jPVaKYAdBjX7C\",\"username\":\"sppcontroller\"}");
+    if(httpCode == 200){  
+      String json = http.getString();
+      // Allocate the JSON document
+      //
+      // Inside the brackets, 256 is the capacity of the memory pool in bytes.
+      // Don't forget to change this value to match your JSON document.
+      // Use https://arduinojson.org/v6/assistant to compute the capacity.
+      StaticJsonDocument<256> doc;
+      DeserializationError error = deserializeJson(doc, json);
+      if (error) {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.f_str());
+        server.send(500, "text/plain", "deserializeJson() failed");
+      }else{
+        token = String(doc["token"]);
+        Serial.print("Authenticated: ");
+        Serial.println(json);
+        server.send(200, "text/plain", server.arg("ipAddress") + " = " + token);
+      }
+    }else{
+      server.send(httpCode, "text/plain", "Authentication fail");    
+    }
+    http.end();
   }
 }
 
