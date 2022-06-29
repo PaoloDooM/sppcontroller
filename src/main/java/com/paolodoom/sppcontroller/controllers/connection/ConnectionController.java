@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -120,8 +122,8 @@ public class ConnectionController implements Initializable {
             }
         });
     }
-    
-    public ConnType getConnType(){
+
+    public ConnType getConnType() {
         return selectedConnType;
     }
 
@@ -191,7 +193,7 @@ public class ConnectionController implements Initializable {
             case serial:
                 retrievePorts();
                 break;
-                
+
             case http:
                 httpCtrl.reset();
                 break;
@@ -270,6 +272,7 @@ public class ConnectionController implements Initializable {
                 serialCtrl.getSendDrop().setDisable(true);
                 serialCtrl.getReceiveDrop().setDisable(true);
                 btCtrl.getDevicesDrop().setDisable(true);
+                httpCtrl.setDissabled(true);
                 connectionTypeMenu.setDisable(true);
                 connectionButton.setDisable(true);
                 connectionButton.setText("Connecting");
@@ -279,6 +282,7 @@ public class ConnectionController implements Initializable {
                 serialCtrl.getSendDrop().setDisable(true);
                 serialCtrl.getReceiveDrop().setDisable(true);
                 btCtrl.getDevicesDrop().setDisable(true);
+                httpCtrl.setDissabled(true);
                 connectionTypeMenu.setDisable(true);
                 connectionButton.setDisable(false);
                 connectionButton.setText("Disconnect");
@@ -288,6 +292,7 @@ public class ConnectionController implements Initializable {
                 serialCtrl.getSendDrop().setDisable(false);
                 serialCtrl.getReceiveDrop().setDisable(false);
                 btCtrl.getDevicesDrop().setDisable(false);
+                httpCtrl.setDissabled(false);
                 connectionTypeMenu.setDisable(false);
                 connectionButton.setDisable(false);
                 connectionButton.setText("Connect");
@@ -298,7 +303,7 @@ public class ConnectionController implements Initializable {
     }
 
     public void createReadTask() {
-        if (readTask == null && selectedConnType != ConnType.http) {
+        if (readTask == null) {
             readTask = new Task<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -313,6 +318,14 @@ public class ConnectionController implements Initializable {
                                 case serial:
                                     readedString = spp.read(receivePort);
                                     break;
+                                case http:
+                                    try {
+                                    readedString = httpSrvc.read();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    throw e;
+                                }
+                                break;
                             }
                             final CountDownLatch latch = new CountDownLatch(1);
                             Platform.runLater(new Runnable() {
@@ -323,6 +336,8 @@ public class ConnectionController implements Initializable {
                                             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - " + readedString + (readedString.contains("\n") ? "" : "\n"));
                                             automationController.execAutomation(readedString);
                                         } catch (IOException ex) {
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read " + ex.toString() + "\n");
+                                        } catch (Exception ex) {
                                             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read " + ex.toString() + "\n");
                                         }
                                     } finally {
@@ -336,7 +351,7 @@ public class ConnectionController implements Initializable {
                 }
             };
             readTask.setOnFailed(e -> {
-                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read failed\n");
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Read failed " + e.toString() + "\n");
             });
         }
     }
@@ -438,8 +453,8 @@ public class ConnectionController implements Initializable {
             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write failed\n");
         }
     }
-    
-        public void writeToLcd(List<String> dataList) {
+
+    public void writeToLcd(List<String> dataList) {
         try {
             if (ConnectionState.connected == connectionButtonState) {
                 switch (selectedConnType) {
@@ -462,7 +477,7 @@ public class ConnectionController implements Initializable {
         loader = new FXMLLoader(getClass().getResource(ConnType.serial.getView()));
         serialConnView = loader.load();
         serialCtrl = loader.getController();
-        
+
         loader = new FXMLLoader(getClass().getResource(ConnType.http.getView()));
         httpConnView = loader.load();
         httpCtrl = loader.getController();

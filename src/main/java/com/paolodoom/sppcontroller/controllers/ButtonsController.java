@@ -6,6 +6,8 @@
 package com.paolodoom.sppcontroller.controllers;
 
 import com.paolodoom.sppcontroller.models.ButtonModel;
+import com.paolodoom.sppcontroller.services.ButtonService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,11 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 public class ButtonsController {
+    private final ButtonService btnSrvc;
+    
+    @Autowired
+    public ButtonsController(ButtonService btnSrvc){
+        this.btnSrvc = btnSrvc;
+    }
 
     @RequestMapping(value = "/buttons", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody ButtonModel button) {
+    public ResponseEntity<?> setButton(@RequestBody ButtonModel button) {
 
         System.out.println("Button pressed: " + button.getBtn());
+        btnSrvc.setButton(button.getBtn());
 
         return ResponseEntity.ok("Acknowledge");
     }

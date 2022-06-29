@@ -5,6 +5,7 @@
  */
 package com.paolodoom.sppcontroller.services;
 
+import com.paolodoom.sppcontroller.components.ApplicationContextHolder;
 import com.paolodoom.sppcontroller.utils.ParameterStringBuilder;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -101,6 +103,7 @@ public class HttpService {
     }
 
     public void disconnect() {
+        write(Arrays.asList(this.ip));
         this.ip = "";
         this.port = "";
     }
@@ -108,8 +111,8 @@ public class HttpService {
     public void write(List<String> data) {
         data.remove(0);
         String display = "";
-        for(String val : data){
-            display+="~"+val.trim().replaceAll("%", "P");
+        for (String val : data) {
+            display += "~" + val.trim();
         }
         display = display.replaceFirst("~", "");
         System.out.println("Sending: " + display);
@@ -161,10 +164,24 @@ public class HttpService {
             Logger.getLogger(HttpService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public String read() throws InterruptedException{
+        //for(int i = 0; i < btnSrvc.getButtonsLength(); i++){
+        String btn;
+        do{
+            ButtonService btnSrvc = ApplicationContextHolder.getContext().getBean(ButtonService.class);
+            btn = btnSrvc.getButton();
+            Thread.sleep(100);
+        }while(btn==null);
+        return btn;
+        //}
+    }
 
     public String getLocalIpAddress() {
         try {
-            return Inet4Address.getLocalHost().getHostAddress();
+            String ip = Inet4Address.getLocalHost().getHostAddress();
+            System.out.println("localIp: " + ip);
+            return "192.168.150.108";
         } catch (Exception e) {
             System.out.println("Error getting local ip:\n" + e.getMessage());
             return "";

@@ -15,7 +15,7 @@
 #define NB 6
 
 int btnsSt[NB] = {0, 0, 0, 0, 0, 0}, i;
-char* btnsCm[NB] = {"$00$", "$01$", "$02$", "$03$", "$04$", "$05$"};
+char* btnsCm[NB] = {"$03$", "$04$", "$05$", "$02$", "$01$", "$00$"};
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const int btnsAd[NB] = {D0, D1, D2, D5, D6, D7}, led = 13;

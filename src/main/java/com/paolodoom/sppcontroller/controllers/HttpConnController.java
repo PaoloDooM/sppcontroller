@@ -40,8 +40,13 @@ public class HttpConnController implements Initializable {
     }
 
     public void reset() {
-        ip.setText("192.168.0.0");
+        ip.setText("192.168.150.110");
         port.setText("80");
+    }
+    
+    public void setDissabled(boolean val){
+        ip.setDisable(val);
+        port.setDisable(val);
     }
 
 }
