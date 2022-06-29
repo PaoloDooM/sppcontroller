@@ -23,6 +23,7 @@ String token = "", serverIp = "";
 
 ESP8266WebServer server(80);
 SSD1306Wire display(0x3C, D4, D3);
+WiFiClient wifiClient;
 
 void handleRoot() {
   digitalWrite(led, 1);
@@ -53,16 +54,15 @@ void handleConnect() {
     server.send(400, "text/plain", "Bad request");
   } else {
     HTTPClient http;
-    WiFiClient client;
     serverIp = server.arg("ipAddress");
-    http.begin(client, "http://" + serverIp + ":53000/authenticate");
+    http.begin(wifiClient, "http://" + serverIp + ":53000/authenticate");
     http.addHeader("Content-Type", "application/json");
     int httpCode = http.POST("{\"password\":\"9DTUdnKN5z4jPVaKYAdBjX7C\",\"username\":\"sppcontroller\"}");
     if (httpCode == 200) {
       token = http.getString();
       Serial.print("Authenticated: ");
       Serial.println(token);
-      server.send(200, "text/plain", serverIp + " = " + token);
+      server.send(200, "text/plain", serverIp + "\n" + token);
     } else {
       clearWsCfg();
       server.send(httpCode, "text/plain", "Authentication fail");
@@ -74,8 +74,8 @@ void handleConnect() {
 void sendBtn(String btn) {
   if (!serverIp.isEmpty() && !token.isEmpty()) {
     HTTPClient http;
-    WiFiClient client;
-    http.begin(client, "http://" + serverIp + ":53000/buttons");
+    
+    http.begin(wifiClient, "http://" + serverIp + ":53000/buttons");
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", "Bearer " + token);
     int httpCode = http.POST("{\"btn\":\"" + btn + "\"}");
@@ -86,6 +86,17 @@ void sendBtn(String btn) {
       Serial.println("Button sended: Fail");
     }
     http.end();
+  }
+}
+
+void handleDisplay() {
+  if (server.arg("display") == "") {
+    server.send(400, "text/plain", "Bad request");
+  }else{
+    display.clear();
+    display.drawString(0, 0, server.arg("display"));
+    display.display();
+   server.send(200, "text/plain", "acknowledge");
   }
 }
 
@@ -147,6 +158,7 @@ void setup(void) {
   server.on("/", handleRoot);
   server.onNotFound(handleNotFound);
   server.on("/connect", handleConnect);
+  server.on("/display", handleDisplay);
 
   server.begin();
   Serial.println("HTTP server started");
