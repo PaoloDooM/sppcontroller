@@ -21,6 +21,12 @@ public enum ConnType {
         public String toString() {
             return "Serial";
         }
+    },
+    http {
+        @Override
+        public String toString() {
+            return "HTTP";
+        }
     };
 
     public String getView() {
@@ -29,6 +35,8 @@ public enum ConnType {
                 return "/com/paolodoom/sppcontroller/views/connection/btConnView.fxml";
             case serial:
                 return "/com/paolodoom/sppcontroller/views/connection/serialConnView.fxml";
+            case http:
+                return "/com/paolodoom/sppcontroller/views/connection/httpConnView.fxml";
             default:
                 return null;
         }

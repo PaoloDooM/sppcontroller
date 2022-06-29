@@ -21,6 +21,7 @@ open module com.paolodoom.sppcontroller {
     requires com.fasterxml.jackson.databind;
     requires com.google.gson;
     requires spring.core;
+    requires java.base;
 
     exports com.paolodoom.sppcontroller;
     

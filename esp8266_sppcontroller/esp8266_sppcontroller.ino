@@ -62,6 +62,9 @@ void handleConnect() {
       token = http.getString();
       Serial.print("Authenticated: ");
       Serial.println(token);
+      display.clear();
+      display.drawString(0, 0, "Connected");
+      display.display();
       server.send(200, "text/plain", serverIp + "\n" + token);
     } else {
       clearWsCfg();
@@ -74,7 +77,7 @@ void handleConnect() {
 void sendBtn(String btn) {
   if (!serverIp.isEmpty() && !token.isEmpty()) {
     HTTPClient http;
-    
+
     http.begin(wifiClient, "http://" + serverIp + ":53000/buttons");
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", "Bearer " + token);
@@ -92,11 +95,17 @@ void sendBtn(String btn) {
 void handleDisplay() {
   if (server.arg("display") == "") {
     server.send(400, "text/plain", "Bad request");
-  }else{
+  } else {
     display.clear();
-    display.drawString(0, 0, server.arg("display"));
+    display.drawString(0, 0, getValue(server.arg("display"), '~', 0));
+    display.drawString(10, 8, getValue(server.arg("display"), '~', 1));
+    display.drawString(10, 16, getValue(server.arg("display"), '~', 2));
+    display.drawString(0, 24, getValue(server.arg("display"), '~', 3));
+    display.drawString(10, 32, getValue(server.arg("display"), '~', 4));
+    display.drawString(10, 40, getValue(server.arg("display"), '~', 5));
+    display.drawString(10, 48, getValue(server.arg("display"), '~', 6));
     display.display();
-   server.send(200, "text/plain", "acknowledge");
+    server.send(200, "text/plain", "acknowledge");
   }
 }
 
@@ -111,13 +120,28 @@ void readBtns() {
       if (!btnsSt[i]) {
         sendBtn(btnsCm[i]);
         display.clear();
-        display.drawString(0, 0, WiFi.localIP().toString());
-        display.drawString(0, 30, btnsCm[i]);
+        display.drawString(0, 0, btnsCm[i]);
         display.display();
       }
       btnsSt[i] = !btnsSt[i];
     }
   }
+}
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = { 0, -1 };
+  int maxIndex = data.length() - 1;
+
+  for (int i = 0; i <= maxIndex && found <= index; i++) {
+    if (data.charAt(i) == separator || i == maxIndex) {
+      found++;
+      strIndex[0] = strIndex[1] + 1;
+      strIndex[1] = (i == maxIndex) ? i + 1 : i;
+    }
+  }
+  return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
 void setup(void) {
@@ -131,7 +155,7 @@ void setup(void) {
   display.init();
   display.flipScreenVertically();
   display.displayOn();
-  display.setFont(ArialMT_Plain_16);
+  display.setFont(ArialMT_Plain_10);
   display.drawString(0, 0, "Initializing");
   display.display();
 

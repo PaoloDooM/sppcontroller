@@ -204,14 +204,14 @@ public class ScreenController implements Initializable {
                 @Override
                 public Void call() throws Exception {
                     while (!isCancelled()) {
-                        //Components components = periodicRead();
+                        Components components = periodicRead();
                         final CountDownLatch latch = new CountDownLatch(1);
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
                                 try {
                                     if (firstIteration) {
-                                        //initializeviewTree(components);
+                                        initializeviewTree(components);
                                         firstIteration = false;
                                     }
                                 } finally {
@@ -404,9 +404,9 @@ public class ScreenController implements Initializable {
 
     private void dataToLcd(List<String> data) {
         for (int i = 0; i < data.size(); i++) {
-            connectionController.writeToLcd(data.get(i));
+            connectionController.writeToLcd(data.get(i), data);
             if (i != 0 || i != data.size() - 1) {
-                connectionController.writeToLcd("\r\n");
+                connectionController.writeToLcd("\r\n", data);
             }
         }
     }

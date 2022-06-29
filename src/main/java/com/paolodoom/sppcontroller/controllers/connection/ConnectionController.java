@@ -6,12 +6,14 @@
 package com.paolodoom.sppcontroller.controllers.connection;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.paolodoom.sppcontroller.controllers.HttpConnController;
 import com.paolodoom.sppcontroller.controllers.ScreenController;
 import com.paolodoom.sppcontroller.controllers.automation.AutomationController;
 import com.paolodoom.sppcontroller.models.ConnType;
 import com.paolodoom.sppcontroller.models.ConnectionState;
 import com.paolodoom.sppcontroller.services.SppService;
 import com.paolodoom.sppcontroller.services.BTService;
+import com.paolodoom.sppcontroller.services.HttpService;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -50,6 +52,7 @@ public class ConnectionController implements Initializable {
 
     SppService spp = new SppService();
     BTService bt = new BTService();
+    HttpService httpSrvc = new HttpService();
     List<SerialPort> sps = Collections.emptyList();
     List<RemoteDevice> devices = Collections.emptyList();
     RemoteDevice selectedDevice;
@@ -61,8 +64,10 @@ public class ConnectionController implements Initializable {
     ConnType selectedConnType = ConnType.bluetooth;
     BtConnController btCtrl;
     SerialConnController serialCtrl;
+    HttpConnController httpCtrl;
     AnchorPane btConnView;
     AnchorPane serialConnView;
+    AnchorPane httpConnView;
     String readedString = "";
 
     @FXML
@@ -158,6 +163,9 @@ public class ConnectionController implements Initializable {
             case serial:
                 spp.disconnect(receivePort, sendPort);
                 break;
+            case http:
+                httpSrvc.disconnect();
+                break;
         }
 
         debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Disconnected\n");
@@ -178,6 +186,10 @@ public class ConnectionController implements Initializable {
 
             case serial:
                 retrievePorts();
+                break;
+                
+            case http:
+                httpCtrl.reset();
                 break;
         }
     }
@@ -282,7 +294,7 @@ public class ConnectionController implements Initializable {
     }
 
     public void createReadTask() {
-        if (readTask == null) {
+        if (readTask == null && selectedConnType != ConnType.http) {
             readTask = new Task<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -335,6 +347,9 @@ public class ConnectionController implements Initializable {
                     case serial:
                         debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
                         break;
+                    case http:
+                        debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connecting IP: " + httpCtrl.getIp() + ":" + httpCtrl.getPort() + "\n");
+                        break;
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -354,6 +369,9 @@ public class ConnectionController implements Initializable {
                             case serial:
                                 spp.connect(receivePort, sendPort);
                                 break;
+                            case http:
+                                httpSrvc.connect(httpCtrl.getIp(), httpCtrl.getPort());
+                                break;
                         }
                         final CountDownLatch latch = new CountDownLatch(1);
                         Platform.runLater(new Runnable() {
@@ -366,6 +384,9 @@ public class ConnectionController implements Initializable {
                                             break;
                                         case serial:
                                             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected TX: " + sendPort.getSystemPortName() + " RX: " + receivePort.getSystemPortName() + "\n");
+                                            break;
+                                        case http:
+                                            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Connected on HTTP protocol\n");
                                             break;
                                     }
                                 } catch (Exception ex) {
@@ -396,7 +417,7 @@ public class ConnectionController implements Initializable {
         }
     }
 
-    public void writeToLcd(String data) {
+    public void writeToLcd(String data, List<String> dataList) {
         try {
             if (ConnectionState.connected == connectionButtonState) {
                 switch (selectedConnType) {
@@ -405,6 +426,9 @@ public class ConnectionController implements Initializable {
                         break;
                     case serial:
                         spp.write(sendPort, data);
+                        break;
+                    case http:
+                        httpSrvc.write(dataList);
                         break;
                 }
                 debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + data + "\n");
@@ -422,6 +446,10 @@ public class ConnectionController implements Initializable {
         loader = new FXMLLoader(getClass().getResource(ConnType.serial.getView()));
         serialConnView = loader.load();
         serialCtrl = loader.getController();
+        
+        loader = new FXMLLoader(getClass().getResource(ConnType.http.getView()));
+        httpConnView = loader.load();
+        httpCtrl = loader.getController();
 
         connTypeAnchor.getChildren().add(btConnView);
     }
@@ -434,6 +462,9 @@ public class ConnectionController implements Initializable {
                 break;
             case serial:
                 connTypeAnchor.getChildren().add(serialConnView);
+                break;
+            case http:
+                connTypeAnchor.getChildren().add(httpConnView);
                 break;
         }
     }
