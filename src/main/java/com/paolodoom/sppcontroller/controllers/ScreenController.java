@@ -6,6 +6,7 @@
 package com.paolodoom.sppcontroller.controllers;
 
 import com.paolodoom.sppcontroller.controllers.connection.ConnectionController;
+import com.paolodoom.sppcontroller.models.ConnType;
 import com.paolodoom.sppcontroller.models.CustomTreeMap;
 import com.profesorfalken.jsensors.JSensors;
 import com.profesorfalken.jsensors.model.components.Components;
@@ -403,10 +404,14 @@ public class ScreenController implements Initializable {
     }
 
     private void dataToLcd(List<String> data) {
-        for (int i = 0; i < data.size(); i++) {
-            connectionController.writeToLcd(data.get(i), data);
-            if (i != 0 || i != data.size() - 1) {
-                connectionController.writeToLcd("\r\n", data);
+        if (connectionController.getConnType() == ConnType.http) {
+            connectionController.writeToLcd(data);
+        } else {
+            for (int i = 0; i < data.size(); i++) {
+                connectionController.writeToLcd(data.get(i));
+                if (i != 0 || i != data.size() - 1) {
+                    connectionController.writeToLcd("\r\n");
+                }
             }
         }
     }

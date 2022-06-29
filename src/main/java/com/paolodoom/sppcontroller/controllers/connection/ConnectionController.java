@@ -120,6 +120,10 @@ public class ConnectionController implements Initializable {
             }
         });
     }
+    
+    public ConnType getConnType(){
+        return selectedConnType;
+    }
 
     @FXML
     private void connection(ActionEvent event) {
@@ -417,7 +421,7 @@ public class ConnectionController implements Initializable {
         }
     }
 
-    public void writeToLcd(String data, List<String> dataList) {
+    public void writeToLcd(String data) {
         try {
             if (ConnectionState.connected == connectionButtonState) {
                 switch (selectedConnType) {
@@ -427,11 +431,23 @@ public class ConnectionController implements Initializable {
                     case serial:
                         spp.write(sendPort, data);
                         break;
+                }
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + data + "\n");
+            }
+        } catch (Exception e) {
+            debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write failed\n");
+        }
+    }
+    
+        public void writeToLcd(List<String> dataList) {
+        try {
+            if (ConnectionState.connected == connectionButtonState) {
+                switch (selectedConnType) {
                     case http:
                         httpSrvc.write(dataList);
                         break;
                 }
-                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + data + "\n");
+                debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write " + dataList.toString() + "\n");
             }
         } catch (Exception e) {
             debugLog.appendText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + " - Write failed\n");
