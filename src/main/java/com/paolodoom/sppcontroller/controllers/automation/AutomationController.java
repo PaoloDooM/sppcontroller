@@ -10,13 +10,9 @@ import com.paolodoom.sppcontroller.models.AutomationType;
 import com.paolodoom.sppcontroller.services.PersistanceService;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,7 +22,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javax.servlet.Filter;
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * FXML Controller class
@@ -35,6 +36,7 @@ import javax.servlet.Filter;
  */
 public class AutomationController implements Initializable {
 
+    Map keyMap = new HashMap();
     static final String automationObjKey = "automationObj";
     @FXML
     private Button addButton;
@@ -50,6 +52,7 @@ public class AutomationController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        keysDiscovery();
         try {
             for (Automation automation : PersistanceService.getAllAutomations()) {
                 try {
@@ -102,8 +105,38 @@ public class AutomationController implements Initializable {
                 if (automation.getType() == AutomationType.executable) {
                     Runtime.getRuntime().exec("cmd /c start \"\" \"" + automation.getPath() + "\"");
                 } else {
-                    throw new UnsupportedOperationException("Unimplemented");
+                    execKeyCombination(automation.getKeyCombination());
                 }
+            }
+        }
+    }
+
+    private void execKeyCombination(List<String> keys) {
+        try {
+            Robot robot = new Robot();
+
+            for (String key : keys) {
+                System.out.println("Presing " + key);
+                robot.keyPress((int) keyMap.get(key.toUpperCase()));
+            }
+            
+            for (String key : keys) {
+                System.out.println("Releasing " + key);
+                robot.keyRelease((int) keyMap.get(key.toUpperCase()));
+            }
+
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void keysDiscovery() {
+        for (int i = 0; i < 1000000; ++i) {
+            String text = java.awt.event.KeyEvent.getKeyText(i);
+            if (!text.contains("Unknown keyCode: ")) {
+                System.out.println("" + i + " -- " + text);
+                keyMap.put(text.toUpperCase(), i);
             }
         }
     }

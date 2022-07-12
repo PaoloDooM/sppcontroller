@@ -23,6 +23,7 @@ open module com.paolodoom.sppcontroller {
     requires spring.core;
     requires java.base;
     requires java.sql.rowset;
+    requires java.desktop;
 
     exports com.paolodoom.sppcontroller;
     

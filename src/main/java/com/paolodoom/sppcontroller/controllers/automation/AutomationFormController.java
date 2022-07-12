@@ -79,7 +79,7 @@ public class AutomationFormController implements Initializable {
             setInputType(automation.getType());
             switch (selectedType) {
                 case keyCombination:
-                    inputField.setText(String.join("+", automation.getKeyCombination()));
+                    inputField.setText(String.join("~", automation.getKeyCombination()));
                     menuType.setText(selectedType.toString());
                     break;
                 case executable:
@@ -113,7 +113,7 @@ public class AutomationFormController implements Initializable {
         if (automation == null) {
             switch (selectedType) {
                 case keyCombination:
-                    automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
+                    automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("~")), buttonField.getText()));
                     break;
                 case executable:
                     automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));
@@ -122,7 +122,7 @@ public class AutomationFormController implements Initializable {
         } else {
             switch (selectedType) {
                 case keyCombination:
-                    automationController.editAutomationCard(new Automation(automation.getId(), selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
+                    automationController.editAutomationCard(new Automation(automation.getId(), selectedType, Arrays.asList(inputField.getText().split("~")), buttonField.getText()));
                     break;
                 case executable:
                     automationController.editAutomationCard(new Automation(automation.getId(), selectedType, inputField.getText(), buttonField.getText()));

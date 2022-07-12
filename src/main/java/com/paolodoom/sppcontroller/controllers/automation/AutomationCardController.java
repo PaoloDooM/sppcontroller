@@ -51,7 +51,7 @@ public class AutomationCardController implements Initializable {
         if (automation.getType() == AutomationType.executable) {
             textLabel.setText("Exec = \"" + automation.getPath() + "\"");
         } else {
-            textLabel.setText("Keys = " + String.join("+", automation.getKeyCombination()) + ".");
+            textLabel.setText("Keys = " + String.join("~", automation.getKeyCombination()) + ".");
         }
     }
 

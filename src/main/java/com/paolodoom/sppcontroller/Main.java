@@ -11,6 +11,7 @@ package com.paolodoom.sppcontroller;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
+        System.setProperty("java.awt.headless", "false");
         Server.main(args);
         App.iniApp();
     }
