@@ -9,6 +9,8 @@ import com.paolodoom.sppcontroller.models.Automation;
 import com.paolodoom.sppcontroller.models.AutomationType;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -59,6 +61,11 @@ public class AutomationCardController implements Initializable {
 
     @FXML
     private void delete(ActionEvent event) {
+        try {
+            autoCtrl.deleteAutomationCard(automation);
+        } catch (Exception ex) {
+            Logger.getLogger(AutomationCardController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void setAutomationController(AutomationController autoCtrl) {

@@ -23,6 +23,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javax.servlet.Filter;
 
 /**
  * FXML Controller class
@@ -30,7 +31,8 @@ import javafx.scene.layout.VBox;
  * @author PaoloDooM
  */
 public class AutomationController implements Initializable {
-
+    
+    static final String persistanceIdKey = "persistanceId";
     @FXML
     private Button addButton;
     @FXML
@@ -49,7 +51,9 @@ public class AutomationController implements Initializable {
             for (Automation automation : PersistanceService.getAllAutomations()) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
-                    automationBox.getChildren().add(loader.load());
+                    Node autoCard = loader.load();
+                    autoCard.getProperties().put(persistanceIdKey, automation.getId());
+                    automationBox.getChildren().add(autoCard);
                     AutomationCardController cardController = loader.getController();
                     cardController.setAutomation(automation);
                     cardController.setAutomationController(this);
@@ -96,7 +100,9 @@ public class AutomationController implements Initializable {
             PersistanceService.insertAutomation(automation);
             automationView.getChildren().remove(automationView.getChildren().size() - 1);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
-            automationBox.getChildren().add(loader.load());
+            Node autoCard = loader.load();
+            autoCard.getProperties().put(persistanceIdKey, automation.getId());
+            automationBox.getChildren().add(autoCard);
             AutomationCardController automationCardController = loader.getController();
             automationCardController.setAutomation(automation);
             automationCardController.setAutomationController(this);
@@ -108,8 +114,9 @@ public class AutomationController implements Initializable {
     public void returnToViewMode() {
         automationView.getChildren().remove(automationView.getChildren().size() - 1);
     }
-    
-    public void deleteAutomationCard(){
-        
+
+    public void deleteAutomationCard(Automation automation) throws Exception {
+        PersistanceService.deleteAutomation(automation);
+        automationBox.getChildren().removeIf(e -> (int) e.getProperties().get(persistanceIdKey) == automation.getId());
     }
 }

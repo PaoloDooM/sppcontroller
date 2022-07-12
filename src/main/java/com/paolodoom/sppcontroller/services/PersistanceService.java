@@ -156,7 +156,7 @@ public class PersistanceService {
         Connection conn = connectDB();
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, automation.getId());
-        pstmt.executeQuery();
+        pstmt.executeUpdate();
         if(automation.getType() == AutomationType.keyCombination){
             deleteKeyCombinations(automation.getId());
         }
@@ -169,7 +169,7 @@ public class PersistanceService {
         Connection conn = connectDB();
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, id);
-        pstmt.executeQuery();
+        pstmt.executeUpdate();
         pstmt.close();
         conn.close();
     }
