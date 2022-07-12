@@ -109,7 +109,7 @@ public class AutomationFormController implements Initializable {
     private void addCard(ActionEvent event) {
         switch(selectedType){
             case keyCombination:
-                automationController.addAutomationCard(new Automation(selectedType, inputField.getText().split("%+"), buttonField.getText()));
+                automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
                 break;
             case executable:
                 automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));

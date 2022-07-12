@@ -6,18 +6,20 @@
 package com.paolodoom.sppcontroller.models;
 
 import com.paolodoom.sppcontroller.models.AutomationType;
+import java.util.List;
 
 /**
  *
  * @author PaoloDooM
  */
 public class Automation {
+    int id;
     AutomationType type;
-    String[] keyCombination;
+    List<String> keyCombination;
     String path;
     String button;
 
-    public Automation(AutomationType type, String[] keyCombination, String button) {
+    public Automation(AutomationType type, List<String> keyCombination, String button) {
         this.type = type;
         this.keyCombination = keyCombination;
         this.button = button;
@@ -30,12 +32,36 @@ public class Automation {
         this.button = button;
         this.keyCombination = null;
     }
+    
+    public Automation(int id, AutomationType type, List<String> keyCombination, String button) {
+        this.id = id;
+        this.type = type;
+        this.keyCombination = keyCombination;
+        this.button = button;
+        this.path = null;
+    }
+    
+    public Automation(int id, AutomationType type, String path, String button) {
+        this.id = id;
+        this.type = type;
+        this.path = path;
+        this.button = button;
+        this.keyCombination = null;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public AutomationType getType() {
         return type;
     }
 
-    public String[] getKeyCombination() {
+    public List<String> getKeyCombination() {
         return keyCombination;
     }
 
@@ -51,7 +77,7 @@ public class Automation {
         this.type = type;
     }
 
-    public void setKeyCombination(String[] keyCombination) {
+    public void setKeyCombination(List<String> keyCombination) {
         this.keyCombination = keyCombination;
     }
 

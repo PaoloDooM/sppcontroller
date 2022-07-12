@@ -7,9 +7,12 @@ package com.paolodoom.sppcontroller.controllers.automation;
 
 import com.paolodoom.sppcontroller.models.Automation;
 import com.paolodoom.sppcontroller.models.AutomationType;
+import com.paolodoom.sppcontroller.services.PersistanceService;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,13 +45,21 @@ public class AutomationController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        for (int i = 0; i < 4; i++) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
-                automationBox.getChildren().add(loader.load());
-            } catch (IOException ex) {
-                ex.printStackTrace();
+        try {
+            for (Automation automation : PersistanceService.getAllAutomations()) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
+                    automationBox.getChildren().add(loader.load());
+                    AutomationCardController cardController = loader.getController();
+                    cardController.setAutomation(automation);
+                    cardController.setAutomationController(this);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
+
+        } catch (Exception ex) {
+            Logger.getLogger(AutomationController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -82,16 +93,23 @@ public class AutomationController implements Initializable {
 
     public void addAutomationCard(Automation automation) {
         try {
+            PersistanceService.insertAutomation(automation);
             automationView.getChildren().remove(automationView.getChildren().size() - 1);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
             automationBox.getChildren().add(loader.load());
             AutomationCardController automationCardController = loader.getController();
-        } catch (IOException e) {
+            automationCardController.setAutomation(automation);
+            automationCardController.setAutomationController(this);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void returnToViewMode() {
         automationView.getChildren().remove(automationView.getChildren().size() - 1);
+    }
+    
+    public void deleteAutomationCard(){
+        
     }
 }

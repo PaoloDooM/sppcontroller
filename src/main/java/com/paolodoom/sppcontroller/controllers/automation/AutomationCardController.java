@@ -5,6 +5,8 @@
  */
 package com.paolodoom.sppcontroller.controllers.automation;
 
+import com.paolodoom.sppcontroller.models.Automation;
+import com.paolodoom.sppcontroller.models.AutomationType;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -12,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
 /**
  * FXML Controller class
  *
@@ -19,6 +22,9 @@ import javafx.scene.control.Label;
  */
 public class AutomationCardController implements Initializable {
 
+    Automation automation = null;
+    AutomationController autoCtrl;
+    
     @FXML
     private Label titleLabel;
     @FXML
@@ -27,21 +33,36 @@ public class AutomationCardController implements Initializable {
     private Button deleteButton;
     @FXML
     private Label textLabel;
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        titleLabel.setText("Button: "+"00");
-        textLabel.setText("C:\\Users\\PaoloDooM\\Desktop\\test.bat");
-    }    
-    
+        titleLabel.setText("");
+        textLabel.setText("");
+    }
+
+    public void setAutomation(Automation automation) {
+        this.automation = automation;
+        titleLabel.setText("Button: " + automation.getButton());
+        if (automation.getType() == AutomationType.executable) {
+            textLabel.setText("Exec = \"" + automation.getPath() + "\"");
+        } else {
+            textLabel.setText("Keys = " + String.join(",", automation.getKeyCombination()) + ".");
+        }
+    }
+
     @FXML
     private void edit(ActionEvent event) {
     }
 
     @FXML
     private void delete(ActionEvent event) {
+    }
+
+    public void setAutomationController(AutomationController autoCtrl) {
+        this.autoCtrl = autoCtrl;
     }
 
 }

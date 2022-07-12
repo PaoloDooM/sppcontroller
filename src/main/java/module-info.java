@@ -22,6 +22,7 @@ open module com.paolodoom.sppcontroller {
     requires com.google.gson;
     requires spring.core;
     requires java.base;
+    requires java.sql.rowset;
 
     exports com.paolodoom.sppcontroller;
     

@@ -1,6 +1,7 @@
 package com.paolodoom.sppcontroller;
 
 import com.paolodoom.sppcontroller.controllers.HomeController;
+import com.paolodoom.sppcontroller.services.PersistanceService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,7 +19,8 @@ public class App extends Application {
     private HomeController homeCtrl;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws Exception {
+        PersistanceService.createTablesIfNotExists();
         FXMLLoader loader = new FXMLLoader(App.class.getResource("/com/paolodoom/sppcontroller/views/HomeView.fxml"));
         scene = new Scene(loader.load());
         homeCtrl = loader.getController();
