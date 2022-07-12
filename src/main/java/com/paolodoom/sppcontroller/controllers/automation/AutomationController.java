@@ -10,6 +10,9 @@ import com.paolodoom.sppcontroller.models.AutomationType;
 import com.paolodoom.sppcontroller.services.PersistanceService;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +35,7 @@ import javax.servlet.Filter;
  */
 public class AutomationController implements Initializable {
     
-    static final String persistanceIdKey = "persistanceId";
+    static final String automationObjKey = "automationObj";
     @FXML
     private Button addButton;
     @FXML
@@ -52,7 +55,7 @@ public class AutomationController implements Initializable {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
                     Node autoCard = loader.load();
-                    autoCard.getProperties().put(persistanceIdKey, automation.getId());
+                    autoCard.getProperties().put(automationObjKey, automation);
                     automationBox.getChildren().add(autoCard);
                     AutomationCardController cardController = loader.getController();
                     cardController.setAutomation(automation);
@@ -80,18 +83,16 @@ public class AutomationController implements Initializable {
         }
     }
 
-    public void execAutomation(String button) throws IOException {
-        if (button.contains("$03$")) {
-            Runtime.getRuntime().exec("cmd /c start \"\" C:\\Users\\PaoloDooM\\Desktop\\internet-fix.bat");
-        }
-        if (button.contains("$02$")) {
-            Runtime.getRuntime().exec("cmd /c start \"\" \"D:\\pixel AVD shortcut\\Pixel_AVD.bat\"");
-        }
-        if (button.contains("$01$")) {
-            Runtime.getRuntime().exec("cmd /c start \"\" C:\\Users\\PaoloDooM\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe");
-        }
-        if (button.contains("$00$")) {
-            Runtime.getRuntime().exec("cmd /c start \"\" \"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" https://github.com/PaoloDooM/sppcontroller");
+    public void execAutomation(String button) throws Exception {
+        for(Node node : automationBox.getChildren()){
+            Automation automation = ((Automation) node.getProperties().get(automationObjKey));
+            if(automation.getButton().contains(button)){
+                if(automation.getType() == AutomationType.executable){
+                    Runtime.getRuntime().exec("cmd /c start \"\" \"" + automation.getPath() + "\"");
+                }else{
+                    throw new UnsupportedOperationException("Unimplemented");
+                }
+            }
         }
     }
 
@@ -101,7 +102,7 @@ public class AutomationController implements Initializable {
             automationView.getChildren().remove(automationView.getChildren().size() - 1);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
             Node autoCard = loader.load();
-            autoCard.getProperties().put(persistanceIdKey, automation.getId());
+            autoCard.getProperties().put(automationObjKey, automation);
             automationBox.getChildren().add(autoCard);
             AutomationCardController automationCardController = loader.getController();
             automationCardController.setAutomation(automation);
@@ -117,6 +118,6 @@ public class AutomationController implements Initializable {
 
     public void deleteAutomationCard(Automation automation) throws Exception {
         PersistanceService.deleteAutomation(automation);
-        automationBox.getChildren().removeIf(e -> (int) e.getProperties().get(persistanceIdKey) == automation.getId());
+        automationBox.getChildren().removeIf(e -> ((Automation) e.getProperties().get(automationObjKey)).getId() == automation.getId());
     }
 }
