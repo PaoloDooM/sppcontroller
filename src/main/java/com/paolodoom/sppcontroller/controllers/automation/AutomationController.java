@@ -34,7 +34,7 @@ import javax.servlet.Filter;
  * @author PaoloDooM
  */
 public class AutomationController implements Initializable {
-    
+
     static final String automationObjKey = "automationObj";
     @FXML
     private Button addButton;
@@ -83,13 +83,25 @@ public class AutomationController implements Initializable {
         }
     }
 
+    public void editAutomation(Automation automation) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationForm.fxml"));
+            automationView.getChildren().add(loader.load());
+            AutomationFormController automationFormController = loader.getController();
+            automationFormController.setAutomationForm(automation);
+            automationFormController.setAutomationConroller(this);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public void execAutomation(String button) throws Exception {
-        for(Node node : automationBox.getChildren()){
+        for (Node node : automationBox.getChildren()) {
             Automation automation = ((Automation) node.getProperties().get(automationObjKey));
-            if(automation.getButton().contains(button)){
-                if(automation.getType() == AutomationType.executable){
+            if (automation.getButton().contains(button)) {
+                if (automation.getType() == AutomationType.executable) {
                     Runtime.getRuntime().exec("cmd /c start \"\" \"" + automation.getPath() + "\"");
-                }else{
+                } else {
                     throw new UnsupportedOperationException("Unimplemented");
                 }
             }
@@ -104,6 +116,29 @@ public class AutomationController implements Initializable {
             Node autoCard = loader.load();
             autoCard.getProperties().put(automationObjKey, automation);
             automationBox.getChildren().add(autoCard);
+            AutomationCardController automationCardController = loader.getController();
+            automationCardController.setAutomation(automation);
+            automationCardController.setAutomationController(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void editAutomationCard(Automation automation) {
+        try {
+            PersistanceService.updateAutomation(automation);
+            automationView.getChildren().remove(automationView.getChildren().size() - 1);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/paolodoom/sppcontroller/views/automation/AutomationCard.fxml"));
+            Node autoCard = loader.load();
+            autoCard.getProperties().put(automationObjKey, automation);
+            int index = -1;
+            for (int i = automationBox.getChildren().size() - 1; i >= 0; i--) {
+                if (((Automation) automationBox.getChildren().get(i).getProperties().get(automationObjKey)).getId() == automation.getId()) {
+                    index = i;
+                }
+            }
+            automationBox.getChildren().remove(index);
+            automationBox.getChildren().add(index, autoCard);
             AutomationCardController automationCardController = loader.getController();
             automationCardController.setAutomation(automation);
             automationCardController.setAutomationController(this);

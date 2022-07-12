@@ -40,7 +40,7 @@ public class AutomationFormController implements Initializable {
     private MenuButton menuType;
     @FXML
     private TextField buttonField;
-    
+    Automation automation = null;
     AutomationType selectedType = AutomationType.values()[0];
     AutomationController automationController;
 
@@ -50,7 +50,7 @@ public class AutomationFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         menuType.getItems().clear();
-        Arrays.asList(AutomationType.values()).forEach(type->{
+        Arrays.asList(AutomationType.values()).forEach(type -> {
             MenuItem mi = new MenuItem(type.toString());
             mi.setOnAction(this::setAutomationType);
             menuType.getItems().add(mi);
@@ -58,38 +58,41 @@ public class AutomationFormController implements Initializable {
         menuType.setText(selectedType.toString());
         setInputType(selectedType);
     }
-        
+
     private void setAutomationType(ActionEvent event) {
         MenuItem source = (MenuItem) event.getSource();
         menuType.setText(source.getText());
-        Arrays.asList(AutomationType.values()).forEach(type->{
-            if(type.toString().equals(source.getText())){
+        Arrays.asList(AutomationType.values()).forEach(type -> {
+            if (type.toString().equals(source.getText())) {
                 setInputType(type);
             }
         });
     }
-    
-    public void setAutomationForm(Automation automation){
-        if(automation == null){
+
+    public void setAutomationForm(Automation automation) {
+        this.automation = automation;
+        if (automation == null) {
             formLabel.setText("Add Item");
-        }else{
+        } else {
             formLabel.setText("Edit Item");
             buttonField.setText(automation.getButton());
             setInputType(automation.getType());
-            switch(selectedType){
+            switch (selectedType) {
                 case keyCombination:
-                    inputField.setText(String.join("", automation.getKeyCombination()));
+                    inputField.setText(String.join("+", automation.getKeyCombination()));
+                    menuType.setText(selectedType.toString());
                     break;
                 case executable:
                     inputField.setText(automation.getPath());
+                    menuType.setText(selectedType.toString());
                     break;
             }
         }
     }
-    
-    public void setInputType(AutomationType type){
+
+    public void setInputType(AutomationType type) {
         selectedType = type;
-        switch(type){
+        switch (type) {
             case keyCombination:
                 inputFieldLabel.setText("Key combination");
                 inputField.clear();
@@ -100,20 +103,31 @@ public class AutomationFormController implements Initializable {
                 break;
         }
     }
-    
-    public void setAutomationConroller(AutomationController automationController){
+
+    public void setAutomationConroller(AutomationController automationController) {
         this.automationController = automationController;
     }
 
     @FXML
     private void addCard(ActionEvent event) {
-        switch(selectedType){
-            case keyCombination:
-                automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
-                break;
-            case executable:
-                automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));
-                break;
+        if (automation == null) {
+            switch (selectedType) {
+                case keyCombination:
+                    automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
+                    break;
+                case executable:
+                    automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));
+                    break;
+            }
+        } else {
+            switch (selectedType) {
+                case keyCombination:
+                    automationController.editAutomationCard(new Automation(automation.getId(), selectedType, Arrays.asList(inputField.getText().split("%+")), buttonField.getText()));
+                    break;
+                case executable:
+                    automationController.editAutomationCard(new Automation(automation.getId(), selectedType, inputField.getText(), buttonField.getText()));
+                    break;
+            }
         }
     }
 

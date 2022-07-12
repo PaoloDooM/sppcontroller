@@ -26,7 +26,7 @@ public class AutomationCardController implements Initializable {
 
     Automation automation = null;
     AutomationController autoCtrl;
-    
+
     @FXML
     private Label titleLabel;
     @FXML
@@ -51,12 +51,13 @@ public class AutomationCardController implements Initializable {
         if (automation.getType() == AutomationType.executable) {
             textLabel.setText("Exec = \"" + automation.getPath() + "\"");
         } else {
-            textLabel.setText("Keys = " + String.join(",", automation.getKeyCombination()) + ".");
+            textLabel.setText("Keys = " + String.join("+", automation.getKeyCombination()) + ".");
         }
     }
 
     @FXML
     private void edit(ActionEvent event) {
+        autoCtrl.editAutomation(automation);
     }
 
     @FXML

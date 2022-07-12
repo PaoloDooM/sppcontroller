@@ -147,8 +147,28 @@ public class PersistanceService {
         return keyCombinations;
     }
 
-    public static void update() {
-        //TODO
+    public static void updateAutomation(Automation automation) throws Exception {
+        String sql = "UPDATE Automations SET type = ?, path = ?, button = ? WHERE id = ?;";
+        Connection conn = connectDB();
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, automation.getType().toString());
+        pstmt.setString(2, automation.getPath() == null ? "" : automation.getPath());
+        pstmt.setString(3, automation.getButton() == null ? "" : automation.getButton());
+        pstmt.setInt(4, automation.getId());
+        pstmt.executeUpdate();
+        pstmt.close();
+        deleteKeyCombinations(automation.getId());
+        if (automation.getType() == AutomationType.keyCombination) {
+            sql = "INSERT INTO KeyCombinations (id, key) VALUES (?, ?);";
+            for (String key : automation.getKeyCombination()) {
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, automation.getId());
+                pstmt.setString(2, key);
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+        }
+        conn.close();
     }
 
     public static void deleteAutomation(Automation automation) throws Exception {
@@ -157,13 +177,13 @@ public class PersistanceService {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, automation.getId());
         pstmt.executeUpdate();
-        if(automation.getType() == AutomationType.keyCombination){
+        if (automation.getType() == AutomationType.keyCombination) {
             deleteKeyCombinations(automation.getId());
         }
         pstmt.close();
         conn.close();
     }
-    
+
     public static void deleteKeyCombinations(int id) throws Exception {
         String sql = "DELETE FROM KeyCombinations WHERE id = ?;";
         Connection conn = connectDB();
