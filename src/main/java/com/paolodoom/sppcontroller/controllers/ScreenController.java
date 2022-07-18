@@ -74,8 +74,8 @@ public class ScreenController implements Initializable {
                         //Print temperatures
                         List<Temperature> temps = cpus.get(i).sensors.temperatures;
                         for (final Temperature temp : temps) {
-                            sensorsData.put(temp.name, temp.value);
-                            System.out.println(temp.name + ": " + ((double)temp.value/100) + " C");
+                            sensorsData.put(temp.name, ((double)temp.value/10));
+                            System.out.println(temp.name + ": " + ((double)temp.value/10) + " C");
                         }
 
                         //Print fan speed
