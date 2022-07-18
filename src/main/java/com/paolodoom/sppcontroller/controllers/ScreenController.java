@@ -60,142 +60,148 @@ public class ScreenController implements Initializable {
     }
 
     public Components periodicRead() {
-        Components components = JSensors.get.components();
-        sensorsData = new HashMap<>();
-        List<Cpu> cpus = components.cpus;
-        if (cpus != null) {
-            for (int i = 0; i < cpus.size(); i++) {
-                System.out.println("Found CPU component: " + cpus.get(i).name);
+        try{
+            Components components = JSensors.get.components();
+            sensorsData = new HashMap<>();
+            List<Cpu> cpus = components.cpus;
+            if (cpus != null) {
+                for (int i = 0; i < cpus.size(); i++) {
+                    System.out.println("Found CPU component: " + cpus.get(i).name);
 
-                if (cpus.get(i).sensors != null) {
-                    System.out.println("Sensors: ");
+                    if (cpus.get(i).sensors != null) {
+                        System.out.println("Sensors: ");
 
-                    //Print temperatures
-                    List<Temperature> temps = cpus.get(i).sensors.temperatures;
-                    for (final Temperature temp : temps) {
-                        System.out.println(temp.name + ": " + temp.value + " C");
-                    }
-
-                    //Print fan speed
-                    List<Fan> fans = cpus.get(i).sensors.fans;
-                    for (final Fan fan : fans) {
-                        System.out.println(fan.name + ": " + fan.value + " RPM");
-                    }
-
-                    List<Load> loads = cpus.get(i).sensors.loads;
-                    for (final Load load : loads) {
-                        System.out.println(load.name + ": " + load.value + " %");
-                        if (load.name.contains("CPU Total")) {
-                            sensorsData.put(load.name + "$" + i, load.value);
-                        } else if (load.name.contains("Memory")) {
-                            sensorsData.put(load.name, load.value);
-                        }
-                    }
-                }
-            }
-        }
-
-        List<Gpu> gpus = components.gpus;
-        if (gpus != null) {
-            for (final Gpu gpu : gpus) {
-                System.out.println("Found GPU component: " + gpu.name);
-
-                if (gpu.sensors != null) {
-                    System.out.println("Sensors: ");
-
-                    //Print temperatures
-                    List<Temperature> temps = gpu.sensors.temperatures;
-                    for (final Temperature temp : temps) {
-                        System.out.println(temp.name + ": " + temp.value + " C");
-                        if (temp.name.contains("GPU Core")) {
+                        //Print temperatures
+                        List<Temperature> temps = cpus.get(i).sensors.temperatures;
+                        for (final Temperature temp : temps) {
                             sensorsData.put(temp.name, temp.value);
+                            System.out.println(temp.name + ": " + temp.value + " C");
+                        }
+
+                        //Print fan speed
+                        List<Fan> fans = cpus.get(i).sensors.fans;
+                        for (final Fan fan : fans) {
+                            System.out.println(fan.name + ": " + fan.value + " RPM");
+                        }
+
+                        List<Load> loads = cpus.get(i).sensors.loads;
+                        for (final Load load : loads) {
+                            System.out.println(load.name + ": " + load.value + " %");
+                            if (load.name.contains("CPU Total")) {
+                                sensorsData.put(load.name + "$" + i, load.value);
+                            } else if (load.name.contains("Memory")) {
+                                sensorsData.put(load.name, load.value);
+                            }
                         }
                     }
+                }
+            }
 
-                    //Print fan speed
-                    List<Fan> fans = gpu.sensors.fans;
-                    for (final Fan fan : fans) {
-                        System.out.println(fan.name + ": " + fan.value + " RPM");
-                    }
+            List<Gpu> gpus = components.gpus;
+            if (gpus != null) {
+                for (final Gpu gpu : gpus) {
+                    System.out.println("Found GPU component: " + gpu.name);
 
-                    List<Load> loads = gpu.sensors.loads;
-                    for (final Load load : loads) {
-                        System.out.println(load.name + ": " + load.value + " %");
-                        if (load.name.contains("GPU Core")) {
-                            sensorsData.put(load.name, load.value);
-                        } else if (load.name.contains("Controller")) {
-                            sensorsData.put(load.name, load.value);
-                        } else if (load.name.contains("Memory")) {
-                            sensorsData.put(load.name, load.value);
+                    if (gpu.sensors != null) {
+                        System.out.println("Sensors: ");
+
+                        //Print temperatures
+                        List<Temperature> temps = gpu.sensors.temperatures;
+                        for (final Temperature temp : temps) {
+                            System.out.println(temp.name + ": " + temp.value + " C");
+                            if (temp.name.contains("GPU Core")) {
+                                sensorsData.put(temp.name, temp.value);
+                            }
+                        }
+
+                        //Print fan speed
+                        List<Fan> fans = gpu.sensors.fans;
+                        for (final Fan fan : fans) {
+                            System.out.println(fan.name + ": " + fan.value + " RPM");
+                        }
+
+                        List<Load> loads = gpu.sensors.loads;
+                        for (final Load load : loads) {
+                            System.out.println(load.name + ": " + load.value + " %");
+                            if (load.name.contains("GPU Core")) {
+                                sensorsData.put(load.name, load.value);
+                            } else if (load.name.contains("Controller")) {
+                                sensorsData.put(load.name, load.value);
+                            } else if (load.name.contains("Memory")) {
+                                sensorsData.put(load.name, load.value);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        List<Disk> disks = components.disks;
-        if (disks != null) {
-            for (int i = 0; i < disks.size(); i++) {
-                System.out.println("Found Disk component: " + disks.get(i).name);
+            List<Disk> disks = components.disks;
+            if (disks != null) {
+                for (int i = 0; i < disks.size(); i++) {
+                    System.out.println("Found Disk component: " + disks.get(i).name);
 
-                if (disks.get(i).sensors != null) {
-                    System.out.println("Sensors: ");
+                    if (disks.get(i).sensors != null) {
+                        System.out.println("Sensors: ");
 
-                    //Print temperatures
-                    List<Temperature> temps = disks.get(i).sensors.temperatures;
-                    for (final Temperature temp : temps) {
-                        System.out.println(temp.name + ": " + temp.value + " C");
-                    }
+                        //Print temperatures
+                        List<Temperature> temps = disks.get(i).sensors.temperatures;
+                        for (final Temperature temp : temps) {
+                            System.out.println(temp.name + ": " + temp.value + " C");
+                        }
 
-                    //Print fan speed
-                    List<Fan> fans = disks.get(i).sensors.fans;
-                    for (final Fan fan : fans) {
-                        System.out.println(fan.name + ": " + fan.value + " RPM");
-                    }
+                        //Print fan speed
+                        List<Fan> fans = disks.get(i).sensors.fans;
+                        for (final Fan fan : fans) {
+                            System.out.println(fan.name + ": " + fan.value + " RPM");
+                        }
 
-                    List<Load> loads = disks.get(i).sensors.loads;
-                    for (final Load load : loads) {
-                        System.out.println(load.name + ": " + load.value + " %");
-                    }
-                }
-            }
-        }
-        List<Mobo> mobos = components.mobos;
-        if (mobos != null) {
-            for (final Mobo mobo : mobos) {
-                System.out.println("Found Mobo component: " + mobo.name);
-
-                if (mobo.sensors != null) {
-                    System.out.println("Sensors: ");
-
-                    //Print temperatures
-                    List<Temperature> temps = mobo.sensors.temperatures;
-                    for (final Temperature temp : temps) {
-                        System.out.println(temp.name + ": " + temp.value + " C");
-                    }
-
-                    //Print fan speed
-                    List<Fan> fans = mobo.sensors.fans;
-                    for (final Fan fan : fans) {
-                        System.out.println(fan.name + ": " + fan.value + " RPM");
-                    }
-
-                    List<Load> loads = mobo.sensors.loads;
-                    for (final Load load : loads) {
-                        System.out.println(load.name + ": " + load.value + " %");
+                        List<Load> loads = disks.get(i).sensors.loads;
+                        for (final Load load : loads) {
+                            System.out.println(load.name + ": " + load.value + " %");
+                        }
                     }
                 }
             }
+            List<Mobo> mobos = components.mobos;
+            if (mobos != null) {
+                for (final Mobo mobo : mobos) {
+                    System.out.println("Found Mobo component: " + mobo.name);
+
+                    if (mobo.sensors != null) {
+                        System.out.println("Sensors: ");
+
+                        //Print temperatures
+                        List<Temperature> temps = mobo.sensors.temperatures;
+                        for (final Temperature temp : temps) {
+                            System.out.println(temp.name + ": " + temp.value + " C");
+                        }
+
+                        //Print fan speed
+                        List<Fan> fans = mobo.sensors.fans;
+                        for (final Fan fan : fans) {
+                            System.out.println(fan.name + ": " + fan.value + " RPM");
+                        }
+
+                        List<Load> loads = mobo.sensors.loads;
+                        for (final Load load : loads) {
+                            System.out.println(load.name + ": " + load.value + " %");
+                        }
+                    }
+                }
+            }
+            System.out.println("------------------------------------------------------------");
+            List<String> parsedData = dataParser(sensorsData);
+            String dataString = "";
+            for (String s : parsedData.subList(1, parsedData.size())) {
+                dataString += s + "\n";
+            }
+            sensorsDisplay.setText(dataString);
+            dataToLcd(parsedData);
+            return components;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
         }
-        System.out.println("------------------------------------------------------------");
-        List<String> parsedData = dataParser(sensorsData);
-        String dataString = "";
-        for (String s : parsedData.subList(1, parsedData.size())) {
-            dataString += s + "\n";
-        }
-        sensorsDisplay.setText(dataString);
-        dataToLcd(parsedData);
-        return components;
     }
 
     public void createSensorsTask() {
@@ -386,6 +392,8 @@ public class ScreenController implements Initializable {
                 if (!strings.contains(placeHolder)) {
                     strings.add(placeHolder);
                 }
+            } else if (k.contains("Temp Package")) {
+                strings.add("   Temp: " + String.format("%.2f", data.get(k)) + "C");
             } else if (k.contains("Load Memory")) {
                 strings.add("   RAM: " + String.format("%.2f", data.get(k)) + "%");
             } else if (k.contains("Temp GPU Core")) {
@@ -399,7 +407,10 @@ public class ScreenController implements Initializable {
                 strings.add("   VRAM: " + String.format("%.2f", data.get(k)) + "%");
             }
         }
-        strings.set(strings.indexOf(placeHolder), "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
+        int indexPlaceHolder = strings.indexOf(placeHolder);
+        if(indexPlaceHolder>=0){
+            strings.set(indexPlaceHolder, "   CPU: " + String.format("%.2f", cpuLoadTotal / divider) + "%");
+        }
         return strings;
     }
 
