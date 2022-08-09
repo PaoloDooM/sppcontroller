@@ -48,10 +48,16 @@ public class AutomationCardController implements Initializable {
     public void setAutomation(Automation automation) {
         this.automation = automation;
         titleLabel.setText("Button: " + automation.getButton());
-        if (automation.getType() == AutomationType.executable) {
-            textLabel.setText("Exec = \"" + automation.getPath() + "\"");
-        } else {
-            textLabel.setText("Keys = " + String.join("~", automation.getKeyCombination()) + ".");
+        switch (automation.getType()) {
+            case executable:
+                textLabel.setText("Exec = \"" + automation.getPath() + "\"");
+                break;
+            case keyCombination:
+                textLabel.setText("Keys = " + String.join("~", automation.getKeyCombination()) + ".");
+                break;
+            case mouseEvents:
+                textLabel.setText("Events = " + String.join("~", automation.getKeyCombination()) + ".");
+                break;
         }
     }
 

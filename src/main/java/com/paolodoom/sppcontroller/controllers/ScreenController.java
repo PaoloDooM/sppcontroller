@@ -8,6 +8,7 @@ package com.paolodoom.sppcontroller.controllers;
 import com.paolodoom.sppcontroller.controllers.connection.ConnectionController;
 import com.paolodoom.sppcontroller.models.ConnType;
 import com.paolodoom.sppcontroller.models.CustomTreeMap;
+import com.paolodoom.sppcontroller.services.MidiService;
 import com.profesorfalken.jsensors.JSensors;
 import com.profesorfalken.jsensors.model.components.Components;
 import com.profesorfalken.jsensors.model.components.Cpu;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -60,6 +63,11 @@ public class ScreenController implements Initializable {
     }
 
     public Components periodicRead() {
+        /*try {
+            MidiService.entrypoint();
+        } catch (Exception ex) {
+            Logger.getLogger(ScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
         Components components = JSensors.get.components();
         sensorsData = new HashMap<>();
         List<Cpu> cpus = components.cpus;

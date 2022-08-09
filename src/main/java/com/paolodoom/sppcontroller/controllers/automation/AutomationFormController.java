@@ -86,6 +86,10 @@ public class AutomationFormController implements Initializable {
                     inputField.setText(automation.getPath());
                     menuType.setText(selectedType.toString());
                     break;
+                case mouseEvents:
+                    inputField.setText(String.join("~", automation.getKeyCombination()));
+                    menuType.setText(selectedType.toString());
+                    break;
             }
         }
     }
@@ -99,6 +103,10 @@ public class AutomationFormController implements Initializable {
                 break;
             case executable:
                 inputFieldLabel.setText("Executable path");
+                inputField.clear();
+                break;
+            case mouseEvents:
+                inputFieldLabel.setText("Mouse Events");
                 inputField.clear();
                 break;
         }
@@ -118,6 +126,9 @@ public class AutomationFormController implements Initializable {
                 case executable:
                     automationController.addAutomationCard(new Automation(selectedType, inputField.getText(), buttonField.getText()));
                     break;
+                case mouseEvents:
+                    automationController.addAutomationCard(new Automation(selectedType, Arrays.asList(inputField.getText().split("~")), buttonField.getText()));
+                    break;
             }
         } else {
             switch (selectedType) {
@@ -126,6 +137,9 @@ public class AutomationFormController implements Initializable {
                     break;
                 case executable:
                     automationController.editAutomationCard(new Automation(automation.getId(), selectedType, inputField.getText(), buttonField.getText()));
+                    break;
+                case mouseEvents:
+                    automationController.editAutomationCard(new Automation(automation.getId(), selectedType, Arrays.asList(inputField.getText().split("~")), buttonField.getText()));
                     break;
             }
         }

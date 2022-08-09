@@ -10,16 +10,22 @@ package com.paolodoom.sppcontroller.models;
  * @author PaoloDooM
  */
 public enum AutomationType {
-    keyCombination{
+    keyCombination {
         @Override
-        public String toString(){
+        public String toString() {
             return "Key combination";
         }
     },
-    executable{
+    executable {
         @Override
-        public String toString(){
+        public String toString() {
             return "Executable";
+        }
+    },
+    mouseEvents {
+        @Override
+        public String toString() {
+            return "Mouse Events";
         }
     }
 }

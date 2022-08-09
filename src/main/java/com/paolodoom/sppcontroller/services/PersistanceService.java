@@ -39,7 +39,8 @@ public class PersistanceService {
                 + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
                 + "	type TEXT CHECK( type IN ("
                 + "                         '" + AutomationType.executable.toString() + "',"
-                + "                         '" + AutomationType.keyCombination.toString() + "'"
+                + "                         '" + AutomationType.keyCombination.toString() + "',"
+                + "                         '" + AutomationType.mouseEvents.toString() + "'"
                 + "                     ) ) NOT NULL DEFAULT '" + AutomationType.executable.toString() + "',\n"
                 + "	path TEXT NULL DEFAULT NULL,\n"
                 + "	button TEXT NOT NULL DEFAULT ''\n"
@@ -103,8 +104,10 @@ public class PersistanceService {
             while (rs.next()) {
                 if (rs.getString("type").equals(AutomationType.executable.toString())) {
                     automations.add(new Automation(rs.getInt("id"), AutomationType.executable, rs.getString("path"), rs.getString("button")));
-                } else {
+                } else if(rs.getString("type").equals(AutomationType.keyCombination.toString())){
                     automations.add(new Automation(rs.getInt("id"), AutomationType.keyCombination, getKeyCombinations(rs.getInt("id")), rs.getString("button")));
+                }else{
+                    automations.add(new Automation(rs.getInt("id"), AutomationType.mouseEvents, getKeyCombinations(rs.getInt("id")), rs.getString("button")));
                 }
             }
         }
@@ -123,8 +126,10 @@ public class PersistanceService {
         if (rs.next()) {
             if (rs.getString("type").equals(AutomationType.executable.toString())) {
                 automation = new Automation(rs.getInt("id"), AutomationType.executable, rs.getString("path"), rs.getString("button"));
-            } else {
+            } else if(rs.getString("type").equals(AutomationType.keyCombination.toString())){
                 automation = new Automation(rs.getInt("id"), AutomationType.keyCombination, getKeyCombinations(rs.getInt("id")), rs.getString("button"));
+            }else{
+                automation = new Automation(rs.getInt("id"), AutomationType.mouseEvents, getKeyCombinations(rs.getInt("id")), rs.getString("button"));
             }
         }
         pstmt.close();
@@ -158,7 +163,7 @@ public class PersistanceService {
         pstmt.executeUpdate();
         pstmt.close();
         deleteKeyCombinations(automation.getId());
-        if (automation.getType() == AutomationType.keyCombination) {
+        if (automation.getType() != AutomationType.executable) {
             sql = "INSERT INTO KeyCombinations (id, key) VALUES (?, ?);";
             for (String key : automation.getKeyCombination()) {
                 pstmt = conn.prepareStatement(sql);
@@ -177,7 +182,7 @@ public class PersistanceService {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, automation.getId());
         pstmt.executeUpdate();
-        if (automation.getType() == AutomationType.keyCombination) {
+        if (automation.getType() != AutomationType.executable) {
             deleteKeyCombinations(automation.getId());
         }
         pstmt.close();

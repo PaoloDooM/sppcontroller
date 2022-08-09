@@ -23,8 +23,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import java.awt.AWTException;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Robot;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,10 +106,16 @@ public class AutomationController implements Initializable {
         for (Node node : automationBox.getChildren()) {
             Automation automation = ((Automation) node.getProperties().get(automationObjKey));
             if (automation.getButton().contains(button)) {
-                if (automation.getType() == AutomationType.executable) {
-                    Runtime.getRuntime().exec("cmd /c start \"\" \"" + automation.getPath() + "\"");
-                } else {
-                    execKeyCombination(automation.getKeyCombination());
+                switch (automation.getType()) {
+                    case executable:
+                        Runtime.getRuntime().exec("cmd /c start \"\" \"" + automation.getPath() + "\"");
+                        break;
+                    case keyCombination:
+                        execKeyCombination(automation.getKeyCombination());
+                        break;
+                    case mouseEvents:
+                        execMouseEvents(automation.getKeyCombination());
+                        break;
                 }
             }
         }
@@ -119,19 +129,53 @@ public class AutomationController implements Initializable {
                 System.out.println("Presing " + key);
                 robot.keyPress((int) keyMap.get(key.toUpperCase()));
             }
-            
+
             for (String key : keys) {
                 System.out.println("Releasing " + key);
                 robot.keyRelease((int) keyMap.get(key.toUpperCase()));
             }
-
         } catch (AWTException e) {
             e.printStackTrace();
         }
+    }
 
+    private void execMouseEvents(List<String> events) {
+        try {
+            Robot robot = new Robot();
+            for (String event : events) {
+                if (event.toLowerCase().equals("reset")) {
+                    robot.mouseMove(0, 0);
+                } else if (event.toLowerCase().contains("move")) {
+                    String[] data = event.split(":");
+                    Point location = MouseInfo.getPointerInfo().getLocation();
+                    robot.mouseMove(location.x + Integer.parseInt(data[1]), location.y + Integer.parseInt(data[2]));
+                } else if (event.toLowerCase().contains("click")) {
+                    int button;
+                    switch (event.split(":")[1]) {
+                        case "1":
+                            button = MouseEvent.BUTTON1_DOWN_MASK;
+                            break;
+                        case "2":
+                            button = MouseEvent.BUTTON2_DOWN_MASK;
+                            break;
+                        case "3":
+                            button = MouseEvent.BUTTON3_DOWN_MASK;
+                            break;
+                        default:
+                            button = InputEvent.BUTTON1_DOWN_MASK;
+                    }
+                    robot.mousePress(button);
+                    robot.delay(30);
+                    robot.mouseRelease(button);
+                }
+            }
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 
     public void keysDiscovery() {
+        System.out.println("\n\n\nKEYBOARD\n");
         for (int i = 0; i < 1000000; ++i) {
             String text = java.awt.event.KeyEvent.getKeyText(i);
             if (!text.contains("Unknown keyCode: ")) {
