@@ -181,7 +181,7 @@ public class HttpService {
         try {
             String ip = Inet4Address.getLocalHost().getHostAddress();
             System.out.println("localIp: " + ip);
-            return "192.168.150.108";
+            return "192.168.150.100";
         } catch (Exception e) {
             System.out.println("Error getting local ip:\n" + e.getMessage());
             return "";

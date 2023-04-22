@@ -8,12 +8,12 @@ Board: PIC18F2550
 #include <fonts/Wendy3x5.h>
 #define OLED_SSD1306
 #define OLED_128X64
-#define NB 4
+#define NB 6
 #define BS 8
 
-int btnsAD[NB] = {17, 10, 11, 12}, i;
-BOOL btnsSt[NB] = {false,   false,   false,   false};
-char* btnsCm[NB] = {"$00$","$01$","$02$","$03$"};
+int btnsAD[NB] = {10, 7, 6, 15, 14, 13}, i;
+BOOL btnsSt[NB] = {false,   false,   false,   false,  false,  false};
+char* btnsCm[NB] = {"$00$","$01$","$02$","$03$", "$04$", "$05$"};
 const u8 intf = OLED_I2C1;
 
 void setup() {
@@ -31,12 +31,7 @@ void setup() {
     OLED.displayOn(intf);
 }
 
-void loop() {
-    readBtns();
-    readData();
-}
-
-readBtns(){
+void readBtns(){
     for(i = 0; i < NB; i++){
         if(digitalRead(btnsAD[i])!=btnsSt[i]){
             if(!btnsSt[i]){
@@ -68,4 +63,9 @@ void readData(){
         writeLcd(data);
     }
     OLED.refresh(intf);
+}
+
+void loop() {
+    readBtns();
+    readData();
 }
