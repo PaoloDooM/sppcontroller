@@ -5,7 +5,7 @@ Description: sppcontroller
 Board: PIC18F2550
 -----------------------------------------------------*/
 
-#include <fonts/Wendy3x5.h>
+#include <fonts/lcd5x7.h>
 #define OLED_SSD1306
 #define OLED_128X64
 #define NB 6
@@ -25,7 +25,7 @@ void setup() {
     Serial.begin(9600);
     
     OLED.init(intf, 0x78);
-    OLED.setFont(intf, Wendy3x5);
+    OLED.setFont(intf, lcd5x7);
     OLED.clearScreen(intf);
     OLED.print(intf, "DEVICE: HC-06\r\n\r\nPASSWORD: 1234");
     OLED.displayOn(intf);
