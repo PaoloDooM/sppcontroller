@@ -1,0 +1,13 @@
+<h2>SPPController</h2>
+
+<p>A simple app written in python3 that sends and recieve data from microcontrollers via serial protocol, bluetooth and http.</p>
+<p>The main functionality of this app is to write performance stats of the pc to the microcontroller LCD, and to recieve button inputs of the microcontroller to execute tasks or simulate keyboard/mouse inputs in the pc.</p>
+
+<p>Following dependencies are needed:</p>
+<ul>
+    <li>pip install --user flet</li>
+    <li>pip install --user psutil</li>
+    <li>pip install --user GPUtil</li>
+    <li>pip install --user pyadl</li>
+    <li>pip install --user pyserial</li>
+</ul>
