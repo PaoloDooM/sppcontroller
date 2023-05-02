@@ -39,23 +39,25 @@ def serial_ports():
 
 def connect(port, baudrate):
     conn = serial.Serial(port=port, baudrate=baudrate)
-    conn.write(stringCompleter("$cl$\r\n").encode())
+    conn.write(stringCompleter("$cl$").encode())
     conn.flush()
     writeThread = threading.Thread(
-        target=writeTask, args=(1, conn, sensors), daemon=True)
+        target=writeTask, args=(3, conn, sensors), daemon=True)
     writeThread.start()
 
+
 def stringCompleter(data):
-    if len(data)%8==0:
+    if len(data) % 8 == 0:
         return data
     else:
-        return stringCompleter("{0} ".format(data))
+        return stringCompleter("{0}\r".format(data))
 
 
 def writeTask(interval, conn, sensors):
     while True:
-        conn.write(stringCompleter("$cl$\r\n").encode())
+        conn.write(stringCompleter("$cl$").encode())
         conn.flush()
-        conn.write(stringCompleter("\r\nCPU: {0}%\r\nRAM: {1}%\r\nGPU: {2}%".format(sensors.cpu, sensors.ram, sensors.gpu)).encode())
+        conn.write(stringCompleter("CPU: {0}% {1:.2f}C\r\n     {2:.2f}W\n\r\nRAM Usage: {3}%\n\r\nGPU: {4}% {5:.2f}C\r\n     {6:.2f}W".format(
+            sensors.cpuUsage, sensors.cpuTemp, sensors.cpuPower, sensors.ramUsage, sensors.gpuUsage, sensors.gpuTemp, sensors.gpuPower)).encode())
         conn.flush()
         time.sleep(interval)

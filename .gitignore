@@ -1,3 +1,4 @@
 /target/
 /pic18f2550/*.hex
 /esp8266_sppcontroller/RouterConfig.h
+/libs/*.sys

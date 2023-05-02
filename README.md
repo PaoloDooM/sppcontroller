@@ -10,4 +10,5 @@
     <li>pip install --user GPUtil</li>
     <li>pip install --user pyadl</li>
     <li>pip install --user pyserial</li>
+    <li>pip install --user pythonnet</li>
 </ul>
