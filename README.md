@@ -1,4 +1,8 @@
 
+<p align="center">
+  <img src="https://github.com/PaoloDooM/sppcontroller/blob/main/assets/favicon.png?raw=true" alt="favicon.png" width="250" height="250"/>
+</p>
+
 <h2>SPPController</h2>
 
 <p>A simple app written in python3 that sends and recieve data from microcontrollers via serial protocol, bluetooth and http.</p>
