@@ -29,7 +29,7 @@ def serial_ports():
     result = []
     for port in ports:
         try:
-            s = serial.Serial(port)
+            s = serial.Serial(port=port, timeout=1)
             s.close()
             result.append(port)
         except (OSError, serial.SerialException):
@@ -38,7 +38,7 @@ def serial_ports():
 
 
 def connect(port, baudrate):
-    conn = serial.Serial(port=port, baudrate=baudrate)
+    conn = serial.Serial(port=port, baudrate=baudrate, timeout=1)
     conn.write(stringCompleter("$cl$").encode())
     conn.flush()
     writeThread = threading.Thread(
@@ -57,7 +57,7 @@ def writeTask(interval, conn, sensors):
     while True:
         conn.write(stringCompleter("$cl$").encode())
         conn.flush()
-        conn.write(stringCompleter("CPU: {0}% {1:.2f}C\r\n     {2:.2f}W\n\r\nRAM Usage: {3}%\n\r\nGPU: {4}% {5:.2f}C\r\n     {6:.2f}W".format(
-            sensors.cpuUsage, sensors.cpuTemp, sensors.cpuPower, sensors.ramUsage, sensors.gpuUsage, sensors.gpuTemp, sensors.gpuPower)).encode())
+        conn.write(stringCompleter("CPU: {0} {1}\r\n     {2} {3}\n\r\nRAM Usage: {4}%\n\r\nGPU: {5} {6}\r\n     {7} {8}".format(
+            sensors.cpuUsageToString(), sensors.cpuTempToString(), sensors.cpuPowerToString(), sensors.cpuClockToString(), sensors.ramUsageToString(), sensors.gpuUsageToString(), sensors.gpuTempToString(), sensors.gpuPowerToString() or sensors.gpuMemUsageToString(), sensors.gpuClockToString())).encode())
         conn.flush()
         time.sleep(interval)

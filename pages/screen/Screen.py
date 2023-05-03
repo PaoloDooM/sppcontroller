@@ -13,11 +13,11 @@ def screenContent(page):
     def updateSensors():
         sensorsWidget.content = ft.Column(
             [
-                ft.Text("CPU: {0}% {1:.2f}C".format(sensors.cpuUsage, sensors.cpuTemp)),
-                ft.Text("         {0:.2f}W".format(sensors.cpuPower)),
-                ft.Text("RAM Usage: {0}%".format(sensors.ramUsage)),
-                ft.Text("GPU: {0}% {1:.2f}C".format(sensors.gpuUsage, sensors.gpuTemp)),
-                ft.Text("         {0:.2f}W".format(sensors.gpuPower)),
+                ft.Text("CPU: {0} {1}".format(sensors.cpuUsageToString(), sensors.cpuTempToString())),
+                ft.Text("         {0} {1}".format(sensors.cpuPowerToString(), sensors.cpuClockToString())),
+                ft.Text("RAM Usage: {0}".format(sensors.ramUsage)),
+                ft.Text("GPU: {0} {1}".format(sensors.gpuUsageToString(), sensors.gpuTempToString())),
+                ft.Text("         {0} {1}".format(sensors.gpuPowerToString() or sensors.gpuMemUsageToString(), sensors.gpuClockToString())),
             ],
             alignment=ft.MainAxisAlignment.CENTER
         )

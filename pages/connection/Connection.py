@@ -12,7 +12,7 @@ def createBaudrateOptions(baudrates):
 
 def createPortOptions(ports):
     print(ports)
-    options = [ft.dropdown.Option("COM3")]
+    options = []
     for port in ports:
         options.append(ft.dropdown.Option(port))
     return options
