@@ -1,3 +1,4 @@
+
 <h2>SPPController</h2>
 
 <p>A simple app written in python3 that sends and recieve data from microcontrollers via serial protocol, bluetooth and http.</p>
@@ -13,4 +14,4 @@
     <li>pip install --user pythonnet</li>
 </ul>
 
-<p>This app needs to be launched as administrator to read all performance stats</p>
+<p>This app needs to be launched as administrator to read all performance stats.</p>

@@ -25,15 +25,15 @@ def main(page: ft.Page):
         tabs=[
             ft.Tab(
                 text="Actions",
-                content=actionsContent(page=page, executer=executer)
+                content=actionsPage(page=page, executer=executer)
             ),
             ft.Tab(
                 text="Screen",
-                content=screenContent(page=page)
+                content=screenPage(page=page)
             ),
             ft.Tab(
                 text="Connection",
-                content=connectionContent(page=page, executer=executer)
+                content=connectionPage(page=page, executer=executer)
             ),
         ],
         expand=1,

@@ -33,7 +33,7 @@ portDropdownWidget = ft.Container(content=ft.Text(
 baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates))
 
 
-def connectionContent(page, executer):
+def connectionPage(page, executer):
 
     def serialConnect(e):
         print("{0} - {1}".format(portDropdownWidget.content.value,

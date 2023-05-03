@@ -9,7 +9,7 @@ sensorsWidget = ft.Container(
 )
 
 
-def screenContent(page):
+def screenPage(page):
     def updateSensors():
         sensorsWidget.content = ft.Column(
             [
