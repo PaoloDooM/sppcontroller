@@ -12,3 +12,5 @@
     <li>pip install --user pyserial</li>
     <li>pip install --user pythonnet</li>
 </ul>
+
+<p>This app needs to be launched as administrator to read all performance stats</p>

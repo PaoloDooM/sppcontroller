@@ -29,7 +29,7 @@ def serial_ports():
     result = []
     for port in ports:
         try:
-            s = serial.Serial(port=port, timeout=1)
+            s = serial.Serial(port=port, timeout=0.5)
             s.close()
             result.append(port)
         except (OSError, serial.SerialException):
@@ -37,13 +37,16 @@ def serial_ports():
     return result
 
 
-def connect(port, baudrate):
-    conn = serial.Serial(port=port, baudrate=baudrate, timeout=1)
+def connect(port, baudrate, executer):
+    conn = serial.Serial(port=port, baudrate=baudrate)
     conn.write(stringCompleter("$cl$").encode())
     conn.flush()
     writeThread = threading.Thread(
         target=writeTask, args=(3, conn, sensors), daemon=True)
     writeThread.start()
+    readThread = threading.Thread(
+        target=readTask, args=(conn, executer), daemon=True)
+    readThread.start()
 
 
 def stringCompleter(data):
@@ -61,3 +64,10 @@ def writeTask(interval, conn, sensors):
             sensors.cpuUsageToString(), sensors.cpuTempToString(), sensors.cpuPowerToString(), sensors.cpuClockToString(), sensors.ramUsageToString(), sensors.gpuUsageToString(), sensors.gpuTempToString(), sensors.gpuPowerToString() or sensors.gpuMemUsageToString(), sensors.gpuClockToString())).encode())
         conn.flush()
         time.sleep(interval)
+
+def readTask(conn, executer):
+    while True:
+        try:
+            executer.executeAction(conn.read(size=4).decode('utf-8'))
+        except:
+            print("Error reading serial inputs")

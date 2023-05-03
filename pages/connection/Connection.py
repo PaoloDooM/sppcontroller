@@ -33,14 +33,16 @@ portDropdownWidget = ft.Container(content=ft.Text(
 baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates))
 
 
-def serialConnect(e):
-    print("{0} - {1}".format(portDropdownWidget.content.value,
-          baudrateDropdownWidget.value))
-    connect(port=portDropdownWidget.content.value,
-            baudrate=baudrateDropdownWidget.value)
+def connectionContent(page, executer):
 
+    def serialConnect(e):
+        print("{0} - {1}".format(portDropdownWidget.content.value,
+            baudrateDropdownWidget.value))
+        connect(port=portDropdownWidget.content.value,
+            baudrate=baudrateDropdownWidget.value,
+            executer=executer
+        )
 
-def connectionContent(page):
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)
     portsThread.start()
