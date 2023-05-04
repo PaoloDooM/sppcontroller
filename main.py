@@ -1,45 +1,33 @@
-import sys
-
-sys.dont_write_bytecode = True
+import sys  # nopep8
+sys.dont_write_bytecode = True  # nopep8
 
 import flet as ft
-from pages.screen.Screen import *
-from pages.connection.Connection import *
-from pages.actions.Actions import *
-from services.actions.Executer import Executer
+from pages.MainLayout import *
+from dependency_injector.wiring import Provide, inject
+from containers.Container import *
+from services.actions.Executer import *
 
 
-def main(page: ft.Page):
+def main():
+    ft.app(target=appInit, assets_dir="assets")
+
+
+def appInit(page: ft.Page):
     page.title = "SPPController"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.window_height=400
-    page.window_width=400
-    page.window_maximizable=False
-    page.window_resizable=False
-
-    executer = Executer()
-
-    t = ft.Tabs(
-        selected_index=0,
-        animation_duration=300,
-        tabs=[
-            ft.Tab(
-                text="Actions",
-                content=actionsPage(page=page, executer=executer)
-            ),
-            ft.Tab(
-                text="Screen",
-                content=screenPage(page=page)
-            ),
-            ft.Tab(
-                text="Connection",
-                content=connectionPage(page=page, executer=executer)
-            ),
-        ],
-        expand=1,
-    )
-
-    page.add(t)
+    page.window_height = 400
+    page.window_width = 400
+    page.window_maximizable = False
+    page.window_resizable = False
+    page.add(mainLayoutView(page=page))
 
 
-ft.app(target=main, assets_dir="assets")
+if __name__ == "__main__":
+    container = Container()
+    # container.config.api_key.from_env("API_KEY", required=True)
+    # container.config.timeout.from_env("TIMEOUT", as_=int, default=5)
+    # container.init_resources()
+    container.wire(
+        modules=["pages.connection.Connection", "pages.actions.Actions"])
+    # main(*sys.argv[1:])
+    main()

@@ -1,6 +1,9 @@
 import flet as ft
 from services.connection.Serial import *
 import threading
+from dependency_injector.wiring import Provide, inject
+from services.actions.Executer import *
+from containers.Container import *
 
 
 def createBaudrateOptions(baudrates):
@@ -33,15 +36,16 @@ portDropdownWidget = ft.Container(content=ft.Text(
 baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates))
 
 
-def connectionPage(page, executer):
+@inject
+def connectionView(page, executer: Executer = Provide[Container.executer]):
 
     def serialConnect(e):
         print("{0} - {1}".format(portDropdownWidget.content.value,
-            baudrateDropdownWidget.value))
+                                 baudrateDropdownWidget.value))
         connect(port=portDropdownWidget.content.value,
-            baudrate=baudrateDropdownWidget.value,
-            executer=executer
-        )
+                baudrate=baudrateDropdownWidget.value,
+                executer=executer
+                )
 
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)

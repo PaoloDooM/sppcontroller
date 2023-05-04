@@ -16,6 +16,7 @@
     <li>pip install --user pyadl</li>
     <li>pip install --user pyserial</li>
     <li>pip install --user pythonnet</li>
+    <li>pip install --user dependency-injector</li>
 </ul>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>
