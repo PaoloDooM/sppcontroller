@@ -68,6 +68,6 @@ def writeTask(interval, conn, sensors):
 def readTask(conn, executer):
     while True:
         try:
-            executer.executeAction(conn.read(size=4).decode('utf-8'))
+            executer.registerButtonEvent(conn.read(size=4).decode('utf-8'))
         except:
             print("Error reading serial inputs")

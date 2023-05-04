@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 from services.actions.Executer import *
+from controllers.ActionsTabController import *
 
 
 class Container(containers.DeclarativeContainer):
@@ -14,6 +15,10 @@ class Container(containers.DeclarativeContainer):
 
     executer = providers.Singleton(
         Executer
+    )
+
+    actionsTabController = providers.Singleton(
+        ActionsTabController
     )
 
     # service = providers.Factory(

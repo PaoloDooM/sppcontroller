@@ -1,13 +1,11 @@
 class Executer:
     def __init__(self):
-        self.updateActions = None
+        self.buttonEventCallbacks = []
 
-    def setUpdateActions(self, updateActions):
-        self.updateActions = updateActions
+    def addButtonEventCallback(self, callback):
+        self.buttonEventCallbacks.append(callback)
 
-    def executeAction(self, button):
-        if (self.updateActions != None):
-            print(f'last button pressed: {button}')
-            self.updateActions(button)
-        else:
-            print('Error "updateActions(button)" not initialized')
+    def registerButtonEvent(self, button):
+        print(f'last button pressed: {button}')
+        for callback in self.buttonEventCallbacks:
+            callback(button)
