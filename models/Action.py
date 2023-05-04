@@ -1,5 +1,8 @@
 class Action:
-    def __init__(self, actionType, actionInput, actionButton):
-        self.actionType = actionType
-        self.actionInput = actionInput
-        self.actionButton = actionButton
+    def __init__(self, button, type, data):
+        self.button = button
+        self.type = type
+        self.data = data
+
+    def toJson(self):
+        return {'button': self.button, 'type': self.type, 'data': self.data}

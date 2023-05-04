@@ -3,7 +3,6 @@ sys.dont_write_bytecode = True  # nopep8
 
 import flet as ft
 from pages.MainLayout import *
-from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 from services.actions.Executer import *
 

@@ -3,3 +3,4 @@
 /esp8266_sppcontroller/RouterConfig.h
 /libs/*.sys
 __pycache__
+db.json

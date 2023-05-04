@@ -21,7 +21,7 @@ textFieldAction = ft.TextField(label="Action")
 
 
 @inject
-def actionsFormView(page, executer: Executer = Provide[Container.executer], actionsTabController: ActionsTabController = Provide[Container.actionsTabController]):
+def actionsFormView(page, executer: Executer = Provide[Container.executer], actionsTabController: ActionsTabController = Provide[Container.actionsTabController], persistence: Persistence = Provide[Container.persistence]):
 
     def updateTextFieldButton(button):
         textFieldButton.value = f'{button}'
@@ -31,7 +31,8 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
         actionsTabController.setListView(True)
 
     def save_button_clicked(e):
-        pass
+        persistence.upsertAction(Action(button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
+        actionsTabController.setListView(True)
 
     cancelButton = ft.ElevatedButton("Cancel", on_click=cancel_button_clicked)
     saveButton = ft.ElevatedButton("Save", on_click=save_button_clicked)
