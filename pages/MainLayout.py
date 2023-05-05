@@ -23,8 +23,10 @@ def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Co
 
     def changeActionsTab(listView):
         if listView:
+            page.floating_action_button = addActionsFAB
             actionsTab.content = actionsListView(page)
         else:
+            page.floating_action_button = None
             actionsTab.content = actionsFormView(page)
         page.update()
 
@@ -33,16 +35,15 @@ def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Co
         page.update()
 
     def onTabChange(e):
+        changeActionsTab(True)
         if tabView.selected_index == 0:
-            addActionsFAB.on_click = addActionsFormView
             page.floating_action_button = addActionsFAB
         else:
             page.floating_action_button = None
         page.update()
 
     addActionsFAB.on_click = addActionsFormView
-    if(tabView.selected_index == 0):
-        page.floating_action_button = addActionsFAB
+    page.floating_action_button = addActionsFAB
 
     actionsTabController.setChangeActionsTab(changeActionsTab)
     actionsTab = ft.Tab(

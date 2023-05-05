@@ -10,7 +10,7 @@ lastButtonWidget = ft.Container(
     content=ft.Text(f'Last button pressed: {None}')
 )
 
-actionCardsList = ft.ListView(controls=[])
+actionCardsList = ft.ListView(controls=[], padding=ft.padding.only(bottom= 75))
 
 
 @inject

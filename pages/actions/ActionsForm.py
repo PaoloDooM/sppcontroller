@@ -43,13 +43,12 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
     return ft.Column(
         [
             textFieldButton, dropdownActionType, textFieldAction,
-            ft.Container(content=ft.Row(
+            ft.Row(
                 [
                     cancelButton, saveButton
                 ],
-                alignment=ft.alignment.center
-            ),
-                alignment=ft.alignment.bottom_center
+                alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                expand=True
             )
         ],
         alignment=ft.MainAxisAlignment.CENTER
