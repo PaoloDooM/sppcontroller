@@ -1,5 +1,68 @@
 import flet as ft
 from models.Action import *
+import math
+from persistence.Persistence import *
+from dependency_injector.wiring import Provide, inject
+from containers.Container import *
 
-def actionCard(action: Action):
-    return ft.Card(content=ft.ListTile(title=ft.Text(f'{action.button}'), subtitle=ft.Column([ft.Text(f'{action.type}'), ft.Text(f'{action.data}')])))
+@inject
+def actionCard(action: Action, persistence: Persistence = Provide[Container.persistence]):
+    def deleteAction(e):
+        persistence.deleteAction(button=action.button)
+
+    return ft.Card(
+        content=ft.ListTile(
+            leading=ft.Column(
+                [
+                    ft.Container(
+                        content=ft.Text(
+                            f'{action.button}'),
+                        alignment=ft.alignment.center,
+                        width=60,
+                        height=30
+                    ),
+                    ft.Container(
+                        content=ft.Divider(),
+                        alignment=ft.alignment.center,
+                        width=60,
+                        height=5
+                    )
+                ],
+                alignment={ft.MainAxisAlignment.CENTER,
+                           ft.CrossAxisAlignment.START},
+                rotate=ft.Rotate(
+                    angle=1.5 * math.pi,
+                    alignment=ft.alignment.center,
+                ),
+            ),
+            title=ft.Text(f'{action.type}'),
+            subtitle=ft.Text(f'{action.data}'),
+            trailing=ft.Column(
+                [
+                    ft.IconButton(
+                        icon=ft.icons.EDIT_ROUNDED,
+                        icon_color="pink600",
+                        tooltip="Edit",
+                        icon_size=20,
+                        height=20,
+                        style=ft.ButtonStyle(
+                            padding=ft.padding.all(0),
+                        )
+                    ),
+                    ft.IconButton(
+                        icon=ft.icons.DELETE_ROUNDED,
+                        icon_color="amber600",
+                        icon_size=20,
+                        height=20,
+                        tooltip="Delete",
+                        style=ft.ButtonStyle(
+                            padding=ft.padding.all(0),
+                        ),
+                        on_click=deleteAction
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                expand=False
+            )
+        )
+    )

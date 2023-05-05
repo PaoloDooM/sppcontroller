@@ -11,15 +11,20 @@ sensorsWidget = ft.Container(
 
 def screenView(page):
     def updateSensors():
-        sensorsWidget.content = ft.Column(
-            [
-                ft.Text("CPU: {0} {1}".format(sensors.cpuUsageToString(), sensors.cpuTempToString())),
-                ft.Text("         {0} {1}".format(sensors.cpuPowerToString(), sensors.cpuClockToString())),
-                ft.Text("RAM Usage: {0}".format(sensors.ramUsage)),
-                ft.Text("GPU: {0} {1}".format(sensors.gpuUsageToString(), sensors.gpuTempToString())),
-                ft.Text("         {0} {1}".format(sensors.gpuPowerToString() or sensors.gpuMemUsageToString(), sensors.gpuClockToString())),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER
+        sensorsWidget.content = ft.Container(
+            ft.Column(
+                [
+                    ft.Text(" CPU: {0} {1}".format(sensors.cpuUsageToString(), sensors.cpuTempToString())),
+                    ft.Text("          {0} {1}".format(sensors.cpuPowerToString(), sensors.cpuClockToString())),
+                    ft.Text(" RAM Usage: {0}".format(sensors.ramUsage)),
+                    ft.Text(" GPU: {0} {1}".format(sensors.gpuUsageToString(), sensors.gpuTempToString())),
+                    ft.Text("          {0} {1}".format(sensors.gpuPowerToString() or sensors.gpuMemUsageToString(), sensors.gpuClockToString())),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER
+            ),
+            bgcolor='#000000',
+            width=150,
+            height=150
         )
         page.update()
 

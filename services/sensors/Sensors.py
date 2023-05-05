@@ -85,7 +85,7 @@ def sensorsTask(interval, sensors, updateSensors):
                     sensors.setCpuClock(getMaxCpuClock(cpuClocks))
         except:
             print(
-                "Error reading stats from OpenHardwareMonitor, did you launch the app as admin?")
+                "Error reading stats from OpenHardwareMonitor, did you launch the app as admin?, did you force close?")
 
         print("\nCPU Usage: {0}%, CPU Clock: {1}, CPU Power: {2}W, CPU Temp: {3}C, RAM Usage: {4}%\n{5} GPU Usage: {6}%, GPU Clock: {7}, GPU Power: {8}W, GPU Temp: {9}C, GPU Mem Usage: {10}%.\n".format(
             sensors.cpuUsage, sensors.cpuClock, sensors.cpuPower, sensors.cpuTemp, sensors.ramUsage, sensors.gpuType.name, sensors.gpuUsage, sensors.gpuClock, sensors.gpuPower, sensors.gpuTemp, sensors.gpuMemUsage))

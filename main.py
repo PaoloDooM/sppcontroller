@@ -27,6 +27,6 @@ if __name__ == "__main__":
     # container.config.timeout.from_env("TIMEOUT", as_=int, default=5)
     # container.init_resources()
     container.wire(
-        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.MainLayout"])
+        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.MainLayout", "pages.actions.widgets.ActionCard"])
     # main(*sys.argv[1:])
     main()
