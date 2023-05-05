@@ -36,7 +36,7 @@ def actionCard(action: Action, persistence: Persistence = Provide[Container.pers
                 ),
             ),
             title=ft.Text(f'{action.type}'),
-            subtitle=ft.Text(f'{action.data}'),
+            subtitle=ft.Text(f'{action.data}', tooltip=f'{action.data}', overflow=ft.TextOverflow.ELLIPSIS, max_lines=1),
             trailing=ft.Column(
                 [
                     ft.IconButton(
@@ -62,7 +62,6 @@ def actionCard(action: Action, persistence: Persistence = Provide[Container.pers
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
-                expand=False
             )
         )
     )

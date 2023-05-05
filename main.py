@@ -14,8 +14,8 @@ def main():
 def appInit(page: ft.Page):
     page.title = "SPPController"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.window_height = 400
-    page.window_width = 400
+    page.window_height = 500
+    page.window_width = 500
     page.window_maximizable = False
     page.window_resizable = False
     page.add(mainLayoutView(page=page))

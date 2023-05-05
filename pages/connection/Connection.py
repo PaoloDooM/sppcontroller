@@ -1,9 +1,17 @@
 import flet as ft
+from models.ConnectionTypes import ConnectionTypes
 from services.connection.Serial import *
 import threading
 from dependency_injector.wiring import Provide, inject
 from services.actions.Executer import *
 from containers.Container import *
+
+
+def createConnectionTypesOptions():
+    options = []
+    for option in ConnectionTypes:
+        options.append(ft.dropdown.Option(option.name))
+    return options
 
 
 def createBaudrateOptions(baudrates):
@@ -21,19 +29,27 @@ def createPortOptions(ports):
     return options
 
 
-def baudrateDropdown():
-    return
-
-
 def portDropdown(page, portDropdownWidget):
     portDropdownWidget.content = ft.Dropdown(
-        options=createPortOptions(serial_ports()))
+        options=createPortOptions(serial_ports()),
+        label="COM port"    
+    )
+    portDropdownWidget.padding = ft.padding.all(0)
     page.update()
 
 
-portDropdownWidget = ft.Container(content=ft.Text(
-    "Initializing"), alignment=ft.alignment.center, padding=ft.padding.symmetric(vertical=25))
-baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates))
+connectionTypeWidget = ft.Dropdown(
+    options=createConnectionTypesOptions(),
+    disabled=True
+)
+portDropdownWidget = ft.Container(
+    content=ft.Text(
+        "Initializing"
+    ),
+    padding=ft.padding.symmetric(vertical=30),
+    alignment=ft.alignment.center
+)
+baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates), label="Baudrate")
 
 
 @inject
@@ -41,22 +57,36 @@ def connectionView(page, executer: Executer = Provide[Container.executer]):
 
     def serialConnect(e):
         print("{0} - {1}".format(portDropdownWidget.content.value,
-                                 baudrateDropdownWidget.value))
+              baudrateDropdownWidget.value))
         connect(port=portDropdownWidget.content.value,
-                baudrate=baudrateDropdownWidget.value,
-                executer=executer
-                )
+                baudrate=baudrateDropdownWidget.value, executer=executer)
 
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)
     portsThread.start()
-    return ft.Container(
-        alignment=ft.alignment.center,
-        content=ft.Column([
-            portDropdownWidget,
-            baudrateDropdownWidget,
-            ft.Container(content=ft.ElevatedButton(content=ft.Text("Connect"),
-                                                   on_click=serialConnect), alignment=ft.alignment.center, padding=ft.padding.symmetric(vertical=25))
+
+    connectionTypeWidget.value = ConnectionTypes.SERIAL.name
+
+    return ft.Column(
+        [
+            ft.Container(
+                alignment=ft.alignment.center,
+                content=connectionTypeWidget,
+                padding=ft.padding.only(top=25)
+            ),
+            ft.Column(
+                [
+                    portDropdownWidget,
+                    baudrateDropdownWidget,
+                ]
+            ),
+            ft.Container(
+                content=ft.ElevatedButton(
+                    content=ft.Text("Connect"),
+                    on_click=serialConnect
+                ),
+                alignment=ft.alignment.center
+            ),
         ],
-            alignment=ft.MainAxisAlignment.CENTER)
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN
     )

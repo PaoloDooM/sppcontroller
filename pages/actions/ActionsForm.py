@@ -16,6 +16,7 @@ def getActionTypeOptions():
 textFieldButton = ft.TextField(label="Button", value=None)
 dropdownActionType = ft.Dropdown(
     options=getActionTypeOptions(),
+    label="Action type"
 )
 textFieldAction = ft.TextField(label="Action")
 
@@ -42,14 +43,20 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
 
     return ft.Column(
         [
-            textFieldButton, dropdownActionType, textFieldAction,
+            ft.Container(
+                content=ft.Column(
+                    [
+                        textFieldButton, dropdownActionType, textFieldAction,
+                    ],
+                ),
+                padding=ft.padding.only(top=25)
+            ),
             ft.Row(
                 [
                     cancelButton, saveButton
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                expand=True
             )
         ],
-        alignment=ft.MainAxisAlignment.CENTER
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN
     )
