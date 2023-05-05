@@ -13,6 +13,9 @@ tabView = ft.Tabs(
     expand=1
 )
 actionsTab = None
+addActionsFAB = ft.FloatingActionButton(
+    icon=ft.icons.ADD, bgcolor='#8a2be2'
+)
 
 
 @inject
@@ -27,22 +30,28 @@ def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Co
 
     def addActionsFormView(e):
         actionsTabController.setListView(False)
+        page.update()
 
     def onTabChange(e):
         if tabView.selected_index == 0:
-            page.floating_action_button = ft.FloatingActionButton(
-                icon=ft.icons.ADD, on_click=addActionsFormView, bgcolor='#8a2be2'),
+            addActionsFAB.on_click = addActionsFormView
+            page.floating_action_button = addActionsFAB
         else:
-            page.floating_action_button=None
+            page.floating_action_button = None
+        page.update()
+
+    addActionsFAB.on_click = addActionsFormView
+    if(tabView.selected_index == 0):
+        page.floating_action_button = addActionsFAB
 
     actionsTabController.setChangeActionsTab(changeActionsTab)
-    actionsTab=ft.Tab(
-        text = "Actions",
-        content = actionsListView(page)
+    actionsTab = ft.Tab(
+        text="Actions",
+        content=actionsListView(page)
     )
 
-    tabView.on_change=onTabChange
-    tabView.tabs=[
+    tabView.on_change = onTabChange
+    tabView.tabs = [
         actionsTab,
         ft.Tab(
             text="Screen",

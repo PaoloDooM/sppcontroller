@@ -31,7 +31,8 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
         actionsTabController.setListView(True)
 
     def save_button_clicked(e):
-        persistence.upsertAction(Action(button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
+        persistence.upsertAction(Action(
+            button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
         actionsTabController.setListView(True)
 
     cancelButton = ft.ElevatedButton("Cancel", on_click=cancel_button_clicked)
@@ -42,11 +43,13 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
     return ft.Column(
         [
             textFieldButton, dropdownActionType, textFieldAction,
-            ft.Row(
+            ft.Container(content=ft.Row(
                 [
                     cancelButton, saveButton
                 ],
                 alignment=ft.alignment.center
+            ),
+                alignment=ft.alignment.bottom_center
             )
         ],
         alignment=ft.MainAxisAlignment.CENTER

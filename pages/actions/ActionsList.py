@@ -29,12 +29,17 @@ def actionsListView(page, executer: Executer = Provide[Container.executer], acti
     executer.addButtonEventCallback(updateLastButtonWidget)
     actionCardsList.controls = buildActionCards(persistence.getActions())
 
-    return ft.Column(
+    return ft.Stack(
         [
             ft.Container(
+                padding=ft.padding.only(top=5),
                 content=lastButtonWidget,
                 alignment=ft.alignment.top_left,
             ),
-            actionCardsList,
+            ft.Container(
+                padding=ft.padding.only(top=30),
+                content=actionCardsList,
+                alignment=ft.alignment.bottom_center,
+            )
         ],
     )
