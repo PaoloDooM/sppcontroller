@@ -13,7 +13,7 @@ actionCardsList = ft.ListView(controls=[], padding=ft.padding.only(bottom= 75))
 
 
 @inject
-def actionsListView(page, actionsService: ActionsService = Provide[Container.actionsService], actionsTabController: ActionsTabController = Provide[Container.actionsTabController], persistence: Persistence = Provide[Container.persistence]):
+def actionsListView(page, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
     def updateLastButtonWidget(button):
         lastButtonWidget.content = ft.Text(f'Last button pressed: {button}')
         page.update()

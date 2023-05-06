@@ -1,6 +1,5 @@
 from dependency_injector import containers, providers
 from services.actions.ActionsService import *
-from controllers.ActionsTabController import *
 from tinydb import TinyDB
 from persistence.Persistence import *
 
@@ -17,10 +16,6 @@ class Container(containers.DeclarativeContainer):
 
     actionsService = providers.Singleton(
         ActionsService
-    )
-
-    actionsTabController = providers.Singleton(
-        ActionsTabController
     )
 
     tiny_db = providers.Singleton(

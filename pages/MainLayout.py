@@ -3,7 +3,6 @@ from pages.actions.ActionsList import *
 from pages.actions.ActionsForm import *
 from pages.connection.Connection import *
 from pages.screen.Screen import *
-from controllers.ActionsTabController import *
 from dependency_injector.wiring import Provide, inject
 
 tabView = ft.Tabs(
@@ -19,22 +18,21 @@ addActionsFAB = ft.FloatingActionButton(
 listView = True
 
 
-@inject
-def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Container.actionsTabController]):
+def mainLayoutView(page):
 
     def changeActionsTab(value):
+        global listView
         listView = value
         if value:
             page.floating_action_button = addActionsFAB
             actionsTab.content = actionsListView(page)
         else:
             page.floating_action_button = None
-            actionsTab.content = actionsFormView(page)
+            actionsTab.content = actionsFormView(page, changeActionsTab)
         page.update()
 
     def addActionsFormView(e):
-        actionsTabController.setListView(False)
-        page.update()
+        changeActionsTab(False)
 
     def onTabChange(e):
         if tabView.selected_index == 0 and listView:
@@ -46,7 +44,6 @@ def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Co
     addActionsFAB.on_click = addActionsFormView
     page.floating_action_button = addActionsFAB
 
-    actionsTabController.setChangeActionsTab(changeActionsTab)
     actionsTab = ft.Tab(
         text="Actions",
         content=actionsListView(page)

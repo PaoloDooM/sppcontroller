@@ -8,7 +8,7 @@ def getActionTypeOptions():
     options = []
     for type in ActionTypes:
         options.append(
-            ft.dropdown.Option(type.name.replace("_", " ")))
+            ft.dropdown.Option(type.name))
     return options
 
 
@@ -21,19 +21,19 @@ textFieldAction = ft.TextField(label="Action")
 
 
 @inject
-def actionsFormView(page, actionsService: ActionsService = Provide[Container.actionsService], actionsTabController: ActionsTabController = Provide[Container.actionsTabController], persistence: Persistence = Provide[Container.persistence]):
+def actionsFormView(page, changeActionsTab, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
 
     def updateTextFieldButton(button):
         textFieldButton.value = f'{button}'
         page.update()
 
     def cancel_button_clicked(e):
-        actionsTabController.setListView(True)
+        changeActionsTab(True)
 
     def save_button_clicked(e):
         persistence.upsertAction(Action(
             button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
-        actionsTabController.setListView(True)
+        changeActionsTab(True)
 
     cancelButton = ft.ElevatedButton("Cancel", on_click=cancel_button_clicked)
     saveButton = ft.ElevatedButton("Save", on_click=save_button_clicked)
