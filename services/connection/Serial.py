@@ -37,7 +37,7 @@ def serial_ports():
     return result
 
 
-def connect(port, baudrate, executer):
+def connect(port, baudrate, actionsService):
     conn = serial.Serial(port=port, baudrate=baudrate)
     conn.write(stringCompleter("$cl$").encode())
     conn.flush()
@@ -45,7 +45,7 @@ def connect(port, baudrate, executer):
         target=writeTask, args=(3, conn, sensors), daemon=True)
     writeThread.start()
     readThread = threading.Thread(
-        target=readTask, args=(conn, executer), daemon=True)
+        target=readTask, args=(conn, actionsService), daemon=True)
     readThread.start()
 
 
@@ -65,9 +65,9 @@ def writeTask(interval, conn, sensors):
         conn.flush()
         time.sleep(interval)
 
-def readTask(conn, executer):
+def readTask(conn, actionsService):
     while True:
         try:
-            executer.registerButtonEvent(conn.read(size=4).decode('utf-8'))
+            actionsService.registerButtonEvent(conn.read(size=4).decode('utf-8'))
         except:
             print("Error reading serial inputs")

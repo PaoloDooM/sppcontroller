@@ -16,13 +16,15 @@ actionsTab = None
 addActionsFAB = ft.FloatingActionButton(
     icon=ft.icons.ADD, bgcolor='#8a2be2'
 )
+listView = True
 
 
 @inject
 def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Container.actionsTabController]):
 
-    def changeActionsTab(listView):
-        if listView:
+    def changeActionsTab(value):
+        listView = value
+        if value:
             page.floating_action_button = addActionsFAB
             actionsTab.content = actionsListView(page)
         else:
@@ -35,8 +37,7 @@ def mainLayoutView(page, actionsTabController: ActionsTabController = Provide[Co
         page.update()
 
     def onTabChange(e):
-        changeActionsTab(True)
-        if tabView.selected_index == 0:
+        if tabView.selected_index == 0 and listView:
             page.floating_action_button = addActionsFAB
         else:
             page.floating_action_button = None

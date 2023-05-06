@@ -1,5 +1,5 @@
 from dependency_injector import containers, providers
-from services.actions.Executer import *
+from services.actions.ActionsService import *
 from controllers.ActionsTabController import *
 from tinydb import TinyDB
 from persistence.Persistence import *
@@ -15,8 +15,8 @@ class Container(containers.DeclarativeContainer):
     #    fname="logging.ini",
     # )
 
-    executer = providers.Singleton(
-        Executer
+    actionsService = providers.Singleton(
+        ActionsService
     )
 
     actionsTabController = providers.Singleton(

@@ -6,9 +6,10 @@ from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 
 @inject
-def actionCard(action: Action, persistence: Persistence = Provide[Container.persistence]):
+def actionCard(action: Action, refreshActionsList, persistence: Persistence = Provide[Container.persistence]):
     def deleteAction(e):
         persistence.deleteAction(button=action.button)
+        refreshActionsList(persistence.getActions())
 
     return ft.Card(
         content=ft.ListTile(

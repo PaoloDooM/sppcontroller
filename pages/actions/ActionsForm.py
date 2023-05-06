@@ -1,7 +1,6 @@
 import flet as ft
 from models.ActionTypes import *
 from dependency_injector.wiring import Provide, inject
-from services.actions.Executer import *
 from containers.Container import *
 
 
@@ -22,7 +21,7 @@ textFieldAction = ft.TextField(label="Action")
 
 
 @inject
-def actionsFormView(page, executer: Executer = Provide[Container.executer], actionsTabController: ActionsTabController = Provide[Container.actionsTabController], persistence: Persistence = Provide[Container.persistence]):
+def actionsFormView(page, actionsService: ActionsService = Provide[Container.actionsService], actionsTabController: ActionsTabController = Provide[Container.actionsTabController], persistence: Persistence = Provide[Container.persistence]):
 
     def updateTextFieldButton(button):
         textFieldButton.value = f'{button}'
@@ -39,7 +38,7 @@ def actionsFormView(page, executer: Executer = Provide[Container.executer], acti
     cancelButton = ft.ElevatedButton("Cancel", on_click=cancel_button_clicked)
     saveButton = ft.ElevatedButton("Save", on_click=save_button_clicked)
 
-    executer.addButtonEventCallback(updateTextFieldButton)
+    actionsService.addButtonEventCallback(updateTextFieldButton)
 
     return ft.Column(
         [

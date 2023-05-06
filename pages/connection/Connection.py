@@ -3,7 +3,6 @@ from models.ConnectionTypes import ConnectionTypes
 from services.connection.Serial import *
 import threading
 from dependency_injector.wiring import Provide, inject
-from services.actions.Executer import *
 from containers.Container import *
 
 
@@ -53,13 +52,13 @@ baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates), l
 
 
 @inject
-def connectionView(page, executer: Executer = Provide[Container.executer]):
+def connectionView(page, actionsService: ActionsService = Provide[Container.actionsService]):
 
     def serialConnect(e):
         print("{0} - {1}".format(portDropdownWidget.content.value,
               baudrateDropdownWidget.value))
         connect(port=portDropdownWidget.content.value,
-                baudrate=baudrateDropdownWidget.value, executer=executer)
+                baudrate=baudrateDropdownWidget.value, actionsService=actionsService)
 
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)
