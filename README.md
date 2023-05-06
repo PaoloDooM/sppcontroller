@@ -18,7 +18,8 @@
     <li>pip install --user pythonnet</li>
     <li>pip install --user dependency-injector</li>
     <li>pip install --user tinydb</li>
-    <lo>pip install --user pyinstaller</li>
+    <li>pip install --user pyinstaller</li>
+    <li>pip install --user flask</li>
 </ul>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>
