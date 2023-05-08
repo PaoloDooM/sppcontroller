@@ -2,6 +2,7 @@ import flet as ft
 from models.ActionTypes import *
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
+from pages.utils import *
 
 
 def getActionTypeOptions():
@@ -39,13 +40,7 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
                 button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
             changeActionsTab(True)
         except Exception as e:
-            displayError(str(e))
-
-    def displayError(error):
-        page.snack_bar = ft.SnackBar(content=ft.Text(
-            error, color='#ffffff', weight=ft.FontWeight.BOLD), bgcolor='#9c0044')
-        page.snack_bar.open = True
-        page.update()
+            displayErrorSnackBar(page, str(e))
 
     def actionVerifier():
         errors = []

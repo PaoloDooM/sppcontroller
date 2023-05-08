@@ -5,10 +5,6 @@ import flet as ft
 from pages.MainLayout import *
 from containers.Container import *
 from services.connection.Http import *
-import threading
-
-def flaskStart():
-    api.run(port=53000)
 
 
 def main():
@@ -31,8 +27,6 @@ if __name__ == "__main__":
     # container.config.timeout.from_env("TIMEOUT", as_=int, default=5)
     # container.init_resources()
     container.wire(
-        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.actions.widgets.ActionCard"])
+        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.actions.widgets.ActionCard", "pages.screen.Screen"])
     # main(*sys.argv[1:])
-    flaskThread = threading.Thread(target=flaskStart, args=(), daemon=True)
-    flaskThread.start()
     main()

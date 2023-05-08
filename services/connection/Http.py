@@ -1,5 +1,9 @@
 import socket
 from flask import Flask, request
+import threading
+
+def flaskStart():
+    api.run(port=53000)
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,3 +27,6 @@ def registerAction():
   btn = request.json['btn']
   print(f'last button pressed: {btn}')
   return 'Acknowledged'
+
+flaskThread = threading.Thread(target=flaskStart, args=(), daemon=True)
+flaskThread.start()

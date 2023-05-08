@@ -4,7 +4,9 @@ from services.connection.Serial import *
 import threading
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
+from pages.utils import *
 
+discoveringLabel = "Discovering ports..."
 
 def createConnectionTypesOptions():
     options = []
@@ -28,43 +30,114 @@ def createPortOptions(ports):
     return options
 
 
-def portDropdown(page, portDropdownWidget):
-    portDropdownWidget.content = ft.Dropdown(
-        options=createPortOptions(serial_ports()),
-        label="COM port"    
-    )
-    portDropdownWidget.padding = ft.padding.all(0)
-    page.update()
-
-
 connectionTypeWidget = ft.Dropdown(
     options=createConnectionTypesOptions(),
     disabled=True
 )
-portDropdownWidget = ft.Container(
-    content=ft.Text(
-        "Initializing"
-    ),
-    padding=ft.padding.symmetric(vertical=30),
-    alignment=ft.alignment.center
+portDropdownWidget = ft.Dropdown(
+    options=[ft.dropdown.Option(text=discoveringLabel)],
+    value=discoveringLabel,
+    label="COM port",
+    disabled=True,
 )
-baudrateDropdownWidget = ft.Dropdown(options=createBaudrateOptions(baudrates), label="Baudrate")
+baudrateDropdownWidget = ft.Dropdown(options=[], label="Baudrate")
+refreshButton = ft.ElevatedButton(
+    content=ft.Text("Refresh"),
+    disabled=True
+)
+connectButton = ft.ElevatedButton(
+    content=ft.Text("Connect"),
+    disabled=True
+)
+disconnectButton = ft.ElevatedButton(
+    content=ft.Text("Disconnect"),
+    visible=False
+)
 
 
 @inject
-def connectionView(page, actionsService: ActionsService = Provide[Container.actionsService]):
+def connectionView(page, actionsService: ActionsService = Provide[Container.actionsService], serialService: SerialService = Provide[Container.serialService]):
+
+    def portDropdown(page, portDropdownWidget):
+        portDropdownWidget.options = [ft.dropdown.Option(text=discoveringLabel)]
+        portDropdownWidget.value = discoveringLabel
+        page.update()
+        portDropdownWidget.options = createPortOptions(serialService.discoverSerialPorts())
+        portDropdownWidget.disabled = False
+        portDropdownWidget.value = None
+        refreshButton.disabled = False
+        connectButton.disabled = False
+        page.update()
+
+    def serialConnectionVerify(port, baudrate):
+        errors = []
+        if len(port) == 0:
+            errors.append('COM port cannot be empty')
+        if len(f'{baudrate}' if baudrate != None else "") == 0:
+            errors.append('Baudrate cannot be empty')
+        return errors
+    
+    def onError():
+        disconnectButton.visible = False
+        connectButton.visible = True
+        serialService.disconnect()
+        displayErrorSnackBar(page, "Connection closed!")
+        portDropdownWidget.disabled = False
+        refreshButton.disabled = False
+        connectButton.disabled = False
+        baudrateDropdownWidget.disabled = False
+        page.update()
+
+    def serialDisconnect(e):
+        serialService.disconnect()
+        connectButton.visible = True
+        disconnectButton.visible = False
+        portDropdownWidget.disabled = False
+        refreshButton.disabled = False
+        connectButton.disabled = False
+        baudrateDropdownWidget.disabled = False
 
     def serialConnect(e):
-        print("{0} - {1}".format(portDropdownWidget.content.value,
-              baudrateDropdownWidget.value))
-        connect(port=portDropdownWidget.content.value,
-                baudrate=baudrateDropdownWidget.value, actionsService=actionsService)
+        errors = serialConnectionVerify(portDropdownWidget.value, baudrateDropdownWidget.value)
+        if len(errors) != 0:
+            displayErrorSnackBar(page, "\n".join(errors))
+            return
+        try:
+            portDropdownWidget.disabled = True
+            refreshButton.disabled = True
+            connectButton.disabled = True
+            baudrateDropdownWidget.disabled = True
+            print("{0} - {1}".format(portDropdownWidget.value,
+                    baudrateDropdownWidget.value))
+            serialService.connect(port=portDropdownWidget.value,
+                                    baudrate=baudrateDropdownWidget.value, onError=onError)
+            connectButton.visible = False
+            disconnectButton.visible = True
+            page.update()
+        except:
+            displayErrorSnackBar(page, "Connection Failed!")
 
+    baudrateDropdownWidget.options = createBaudrateOptions(
+        serialService.baudrates)
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)
     portsThread.start()
-
     connectionTypeWidget.value = ConnectionTypes.SERIAL.name
+
+    def refreshPorts(e):
+        portDropdownWidget.disabled = True
+        refreshButton.disabled = True
+        connectButton.disabled = True
+        portsThread = threading.Thread(target=portDropdown, args=(
+            page, portDropdownWidget), daemon=True)
+        portsThread.start()
+        page.update()
+
+
+    refreshButton.on_click=refreshPorts
+    connectButton.on_click=serialConnect
+    disconnectButton.on_click=serialDisconnect
+   
 
     return ft.Column(
         [
@@ -79,12 +152,13 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
                     baudrateDropdownWidget,
                 ]
             ),
-            ft.Container(
-                content=ft.ElevatedButton(
-                    content=ft.Text("Connect"),
-                    on_click=serialConnect
-                ),
-                alignment=ft.alignment.center
+            ft.Row(
+                [
+                    refreshButton,
+                    connectButton,
+                    disconnectButton
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_EVENLY
             ),
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN
