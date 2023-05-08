@@ -8,20 +8,22 @@ def getActionTypeOptions():
     options = []
     for type in ActionTypes:
         options.append(
-            ft.dropdown.Option(type.name))
+            ft.dropdown.Option(text=type.label(), key=type.value))
     return options
 
 
-textFieldButton = ft.TextField(label="Button", value=None)
-dropdownActionType = ft.Dropdown(
-    options=getActionTypeOptions(),
-    label="Action type"
-)
-textFieldAction = ft.TextField(label="Action")
-
-
 @inject
-def actionsFormView(page, changeActionsTab, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
+def actionsFormView(page, changeActionsTab, action: Action = None, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
+
+    textFieldButton = ft.TextField(
+        label="Button", value=None if action == None else action.button, disabled=action != None)
+    dropdownActionType = ft.Dropdown(
+        options=getActionTypeOptions(),
+        label="Action type",
+        value=None if action == None else action.type.value
+    )
+    textFieldAction = ft.TextField(
+        label="Action", value=None if action == None else action.data)
 
     def updateTextFieldButton(button):
         textFieldButton.value = f'{button}'
@@ -31,12 +33,34 @@ def actionsFormView(page, changeActionsTab, actionsService: ActionsService = Pro
         changeActionsTab(True)
 
     def save_button_clicked(e):
-        persistence.upsertAction(Action(
-            button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
-        changeActionsTab(True)
+        try:
+            actionVerifier()
+            persistence.upsertAction(Action(
+                button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
+            changeActionsTab(True)
+        except Exception as e:
+            displayError(str(e))
+
+    def displayError(error):
+        page.snack_bar = ft.SnackBar(content=ft.Text(
+            error, color='#ffffff', weight=ft.FontWeight.BOLD), bgcolor='#9c0044')
+        page.snack_bar.open = True
+        page.update()
+
+    def actionVerifier():
+        errors = []
+        if len(textFieldButton.value) == 0:
+            errors.append("Button field cannot be empty")
+        if dropdownActionType.value == None:
+            errors.append("Action type cannot be empty")
+        if len(textFieldAction.value) == 0:
+            errors.append("Action field cannot be empty")
+        if len(errors) != 0:
+            raise Exception("\n".join(errors))
 
     cancelButton = ft.ElevatedButton("Cancel", on_click=cancel_button_clicked)
-    saveButton = ft.ElevatedButton("Save", on_click=save_button_clicked)
+    saveButton = ft.ElevatedButton(
+        "Add" if action == None else "Save", on_click=save_button_clicked)
 
     actionsService.addButtonEventCallback(updateTextFieldButton)
 

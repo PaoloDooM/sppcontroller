@@ -9,11 +9,11 @@ lastButtonWidget = ft.Container(
     content=ft.Text(f'Last button pressed: {None}')
 )
 
-actionCardsList = ft.ListView(controls=[], padding=ft.padding.only(bottom= 75))
+actionCardsList = ft.ListView(controls=[], padding=ft.padding.only(bottom=75))
 
 
 @inject
-def actionsListView(page, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
+def actionsListView(page, changeActionsTab, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
     def updateLastButtonWidget(button):
         lastButtonWidget.content = ft.Text(f'Last button pressed: {button}')
         page.update()
@@ -22,11 +22,11 @@ def actionsListView(page, actionsService: ActionsService = Provide[Container.act
         actionCardsList.controls = buildActionCards(actions)
         page.update()
 
-    def buildActionCards(actions):
+    def buildActionCards(actions: Action):
         cards = []
         for action in actions:
             cards.append(actionCard(
-                Action(button=action['button'], type=action['type'], data=action['data']), refreshActionsList=refreshActionsList))
+                action, changeActionsTab=changeActionsTab, refreshActionsList=refreshActionsList))
         return cards
 
     actionsService.addButtonEventCallback(updateLastButtonWidget)

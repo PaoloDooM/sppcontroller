@@ -22,4 +22,9 @@
     <li>pip install --user flask</li>
 </ul>
 
+<p>Run command:</p>
+<ul>
+  <li>flet run main.py</li>
+</ul>
+
 <p>This app needs to be launched as administrator to read all performance stats.</p>

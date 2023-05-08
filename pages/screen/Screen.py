@@ -11,8 +11,8 @@ sensorsWidget = ft.Container(
     alignment=ft.alignment.center,
     content=ft.Text("Initializing")
 )
-resetButton = ft.ElevatedButton("Reset")
-setButton = ft.ElevatedButton("Set")
+resetButton = ft.ElevatedButton("Reset", disabled=True)
+setButton = ft.ElevatedButton("Set", disabled=True)
 
 
 def screenView(page):

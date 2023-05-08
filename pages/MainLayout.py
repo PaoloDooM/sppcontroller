@@ -20,15 +20,15 @@ listView = True
 
 def mainLayoutView(page):
 
-    def changeActionsTab(value):
+    def changeActionsTab(value, action=None):
         global listView
         listView = value
         if value:
             page.floating_action_button = addActionsFAB
-            actionsTab.content = actionsListView(page)
+            actionsTab.content = actionsListView(page, changeActionsTab)
         else:
             page.floating_action_button = None
-            actionsTab.content = actionsFormView(page, changeActionsTab)
+            actionsTab.content = actionsFormView(page, changeActionsTab, action)
         page.update()
 
     def addActionsFormView(e):
@@ -46,7 +46,7 @@ def mainLayoutView(page):
 
     actionsTab = ft.Tab(
         text="Actions",
-        content=actionsListView(page)
+        content=actionsListView(page=page, changeActionsTab=changeActionsTab)
     )
 
     tabView.on_change = onTabChange

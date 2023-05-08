@@ -6,10 +6,13 @@ from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 
 @inject
-def actionCard(action: Action, refreshActionsList, persistence: Persistence = Provide[Container.persistence]):
+def actionCard(action: Action, changeActionsTab, refreshActionsList, persistence: Persistence = Provide[Container.persistence]):
     def deleteAction(e):
         persistence.deleteAction(button=action.button)
         refreshActionsList(persistence.getActions())
+
+    def editAction(e):
+        changeActionsTab(False, action)
 
     return ft.Card(
         content=ft.ListTile(
@@ -36,7 +39,7 @@ def actionCard(action: Action, refreshActionsList, persistence: Persistence = Pr
                     alignment=ft.alignment.center,
                 ),
             ),
-            title=ft.Text(f'{action.type}'),
+            title=ft.Text(f'{action.type.label()}'),
             subtitle=ft.Text(f'{action.data}', tooltip=f'{action.data}', overflow=ft.TextOverflow.ELLIPSIS, max_lines=1),
             trailing=ft.Column(
                 [
@@ -48,7 +51,8 @@ def actionCard(action: Action, refreshActionsList, persistence: Persistence = Pr
                         height=20,
                         style=ft.ButtonStyle(
                             padding=ft.padding.all(0),
-                        )
+                        ),
+                        on_click=editAction
                     ),
                     ft.IconButton(
                         icon=ft.icons.DELETE_ROUNDED,

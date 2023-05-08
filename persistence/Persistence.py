@@ -15,8 +15,13 @@ class Persistence:
         self.db.upsert(action.toJson(), actionQuery.button == action.button)
 
     def getActions(self, button = None):
+        result = []
         if button == None:
-            return self.db.all()
+            result = self.db.all()
         else:
             actionQuery = Query()
-            return self.db.search(actionQuery.button == button)
+            result = self.db.search(actionQuery.button == button)
+        actions = []
+        for action in result:
+            actions.append(Action(button=action['button'], type=list(ActionTypes)[int(action['type'])], data=action['data']))
+        return actions
