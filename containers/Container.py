@@ -1,5 +1,4 @@
 from dependency_injector import containers, providers
-from dependency_injector.errors import *
 from services.actions.ActionsService import *
 from tinydb import TinyDB
 from persistence.Persistence import *

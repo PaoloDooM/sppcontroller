@@ -31,7 +31,7 @@
 
 <p>Compile command:</p>
 <ul>
-  <li>flet pack .\main.py --icon .\assets\icon.ico</li>
+  <li>flet pack .\main.py --icon .\assets\icon.ico --hidden-import dependency_injector.errors --hidden-import api.apis</li>
 </ul>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>

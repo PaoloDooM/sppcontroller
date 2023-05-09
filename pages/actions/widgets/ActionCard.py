@@ -1,7 +1,6 @@
 import flet as ft
 import math
 from dependency_injector.wiring import Provide, inject
-from dependency_injector.errors import *
 from containers.Container import *
 
 @inject
