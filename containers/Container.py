@@ -4,6 +4,7 @@ from tinydb import TinyDB
 from persistence.Persistence import *
 from services.connection.Serial import SerialService
 from services.sensors.Sensors import SensorsService
+from services.connection.Http import *
 
 
 class Container(containers.DeclarativeContainer):
@@ -41,6 +42,12 @@ class Container(containers.DeclarativeContainer):
 
     serialService = providers.Factory(
         SerialService,
+        actionsService,
+        sensorsService
+    )
+
+    httpService = providers.Factory(
+        HTTPServices,
         actionsService,
         sensorsService
     )

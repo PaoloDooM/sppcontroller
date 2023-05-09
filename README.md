@@ -20,6 +20,7 @@
     <li>pip install --user tinydb</li>
     <li>pip install --user pyinstaller</li>
     <li>pip install --user flask</li>
+    <li>pip install --user requests</li>
 </ul>
 
 <p>Run command:</p>

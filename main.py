@@ -4,7 +4,6 @@ sys.dont_write_bytecode = True  # nopep8
 import flet as ft
 from pages.MainLayout import *
 from containers.Container import *
-from services.connection.Http import *
 
 
 def main():

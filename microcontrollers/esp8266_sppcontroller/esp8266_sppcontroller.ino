@@ -105,7 +105,7 @@ void handleDisplay() {
     display.drawString(10, 40, getValue(server.arg("display"), '~', 5));
     display.drawString(10, 48, getValue(server.arg("display"), '~', 6));
     display.display();
-    server.send(200, "text/plain", "acknowledge");
+    server.send(200, "text/plain", "Acknowledge");
   }
 }
 
