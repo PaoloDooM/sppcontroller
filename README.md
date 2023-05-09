@@ -26,7 +26,12 @@
 
 <p>Run command:</p>
 <ul>
-  <li>flet run main.py</li>
+  <li>flet run .\main.py</li>
+</ul>
+
+<p>Compile command:</p>
+<ul>
+  <li>flet pack .\main.py --icon .\assets\icon.ico</li>
 </ul>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>

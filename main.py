@@ -3,6 +3,7 @@ sys.dont_write_bytecode = True  # nopep8
 
 import flet as ft
 from pages.MainLayout import *
+from api.apis import *
 
 def main():
     ft.app(target=appInit, assets_dir="assets")
