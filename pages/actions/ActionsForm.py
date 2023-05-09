@@ -26,8 +26,9 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
         label="Action", value=None if action == None else action.data)
 
     def updateTextFieldButton(button):
-        textFieldButton.value = f'{button}'
-        page.update()
+        if action == None:
+            textFieldButton.value = f'{button}'
+            page.update()
 
     def cancel_button_clicked(e):
         changeActionsTab(True)

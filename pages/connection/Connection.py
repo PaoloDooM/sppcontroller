@@ -4,6 +4,7 @@ import threading
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 from pages.utils import *
+import re
 
 discoveringLabel = "Discovering ports..."
 
@@ -11,7 +12,8 @@ discoveringLabel = "Discovering ports..."
 def createConnectionTypesOptions():
     options = []
     for option in ConnectionTypes:
-        options.append(ft.dropdown.Option(option.name))
+        options.append(ft.dropdown.Option(
+            text=option.name, key=f'{option.value}'))
     return options
 
 
@@ -52,36 +54,17 @@ disconnectButton = ft.ElevatedButton(
     content=ft.Text("Disconnect"),
     visible=False
 )
+textIP = ft.TextField(
+    label="IP", value="192.168.150.100", visible=False)
+textPort = ft.TextField(
+    label="Port", value="80", visible=False)
 
 
 @inject
 def connectionView(page, serialService: SerialService = Provide[Container.serialService], httpServices: HTTPServices = Provide[Container.httpService]):
 
-    def onConecctionTypeChange():
-        page.update()
-
-    def portDropdown(page, portDropdownWidget):
-        portDropdownWidget.options = [
-            ft.dropdown.Option(text=discoveringLabel)]
-        portDropdownWidget.value = discoveringLabel
-        page.update()
-        portDropdownWidget.options = createPortOptions(
-            serialService.discoverSerialPorts())
-        portDropdownWidget.disabled = False
-        portDropdownWidget.value = None
-        refreshButton.disabled = False
-        connectButton.disabled = False
-        page.update()
-
-    def serialConnectionVerify(port, baudrate):
-        errors = []
-        if len(port) == 0:
-            errors.append('COM port cannot be empty')
-        if len(f'{baudrate}' if baudrate != None else "") == 0:
-            errors.append('Baudrate cannot be empty')
-        return errors
-
     def onError():
+        connectionTypeWidget.disabled = False
         disconnectButton.visible = False
         connectButton.visible = True
         serialService.disconnect()
@@ -92,14 +75,128 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
         baudrateDropdownWidget.disabled = False
         page.update()
 
-    def serialDisconnect(e):
-        serialService.disconnect()
-        connectButton.visible = True
-        disconnectButton.visible = False
+    def httpConnectionVerify(ip, port):
+        errors = []
+        if len(ip) == 0:
+            errors.append('IP field port cannot be empty')
+        elif not bool(re.match(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", ip)):
+            errors.append('Wrong syntax on IP field')
+        if len(f'{port}' if port != None else "") == 0:
+            errors.append('Port field cannot be empty')
+        elif not (f'{port}' if port != None else "").isnumeric():
+            errors.append('Port field must be numeric')
+        return errors
+
+    def httpConnect(e):
+        errors = httpConnectionVerify(
+            textIP.value, textPort.value)
+        if len(errors) != 0:
+            displayErrorSnackBar(page, "\n".join(errors))
+            return
+        try:
+            connectionTypeWidget.disabled = True
+            portDropdownWidget.disabled = True
+            refreshButton.disabled = True
+            connectButton.disabled = True
+            baudrateDropdownWidget.disabled = True
+            textIP.disabled = True
+            textPort.disabled = True
+            httpServices.connect(
+                textIP.value, textPort.value, onError)
+            connectButton.visible = False
+            disconnectButton.visible = True
+            page.update()
+        except:
+            connectButton.visible = True
+            disconnectButton.visible = False
+            portDropdownWidget.disabled = False
+            refreshButton.disabled = False
+            connectButton.disabled = False
+            baudrateDropdownWidget.disabled = False
+            connectionTypeWidget.disabled = False
+            textIP.disabled = False
+            textPort.disabled = False
+            page.update()
+            displayErrorSnackBar(page, "Connection Failed!")
+
+    def httpDisconnect(e):
+        try:
+            httpServices.disconnect()
+            connectButton.visible = True
+            disconnectButton.visible = False
+            portDropdownWidget.disabled = False
+            refreshButton.disabled = False
+            connectButton.disabled = False
+            baudrateDropdownWidget.disabled = False
+            connectionTypeWidget.disabled = False
+            textIP.disabled = False
+            textPort.disabled = False
+            page.update()
+        except:
+            displayErrorSnackBar(page, "Disconnection Failed!")
+
+    def onConecctionTypeChange(e):
+        print(f"->{connectionTypeWidget.value}")
+        if (f'{connectionTypeWidget.value}' == f'{ConnectionTypes.SERIAL.value}'):
+            textIP.visible = False
+            textPort.visible = False
+            portDropdownWidget.visible = True
+            baudrateDropdownWidget.visible = True
+            refreshButton.visible = True
+            connectButton.on_click = serialConnect
+            disconnectButton.on_click = serialDisconnect
+        elif (f'{connectionTypeWidget.value}' == f'{ConnectionTypes.HTTP.value}'):
+            textIP.visible = True
+            textPort.visible = True
+            portDropdownWidget.visible = False
+            baudrateDropdownWidget.visible = False
+            refreshButton.visible = True
+            refreshButton.visible = False
+            connectButton.on_click = httpConnect
+            disconnectButton.on_click = httpDisconnect
+        page.update()
+
+    connectionTypeWidget.on_change = onConecctionTypeChange
+
+    def portDropdown(page, portDropdownWidget):
+        portDropdownWidget.options = [
+            ft.dropdown.Option(text=discoveringLabel)]
+        portDropdownWidget.value = discoveringLabel
+        page.update()
+        portDropdownWidget.options = createPortOptions(
+            serialService.discoverSerialPorts())
+        connectionTypeWidget.disabled = False
         portDropdownWidget.disabled = False
+        portDropdownWidget.value = None
         refreshButton.disabled = False
         connectButton.disabled = False
-        baudrateDropdownWidget.disabled = False
+        textIP.disabled = False
+        textPort.disabled = False
+        page.update()
+
+    def serialConnectionVerify(port, baudrate):
+        errors = []
+        if len(port) == 0:
+            errors.append('COM port cannot be empty')
+        if len(f'{baudrate}' if baudrate != None else "") == 0:
+            errors.append('Baudrate cannot be empty')
+        return errors
+
+    def serialDisconnect(e):
+        try:
+            serialService.disconnect()
+            connectButton.visible = True
+            disconnectButton.visible = False
+            portDropdownWidget.disabled = False
+            refreshButton.disabled = False
+            connectButton.disabled = False
+            baudrateDropdownWidget.disabled = False
+            connectionTypeWidget.disabled = False
+            textIP.disabled = False
+            textPort.disabled = False
+            page.update()
+        except:
+            displayErrorSnackBar(page, "Disconnection Failed!")
 
     def serialConnect(e):
         errors = serialConnectionVerify(
@@ -108,10 +205,13 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
             displayErrorSnackBar(page, "\n".join(errors))
             return
         try:
+            connectionTypeWidget.disabled = True
             portDropdownWidget.disabled = True
             refreshButton.disabled = True
             connectButton.disabled = True
             baudrateDropdownWidget.disabled = True
+            textIP.disabled = True
+            textPort.disabled = True
             print("{0} - {1}".format(portDropdownWidget.value,
                                      baudrateDropdownWidget.value))
             serialService.connect(port=portDropdownWidget.value,
@@ -120,6 +220,16 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
             disconnectButton.visible = True
             page.update()
         except:
+            connectButton.visible = True
+            disconnectButton.visible = False
+            portDropdownWidget.disabled = False
+            refreshButton.disabled = False
+            connectButton.disabled = False
+            baudrateDropdownWidget.disabled = False
+            connectionTypeWidget.disabled = False
+            textIP.disabled = False
+            textPort.disabled = False
+            page.update()
             displayErrorSnackBar(page, "Connection Failed!")
 
     baudrateDropdownWidget.options = createBaudrateOptions(
@@ -127,14 +237,15 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
     portsThread = threading.Thread(target=portDropdown, args=(
         page, portDropdownWidget), daemon=True)
     portsThread.start()
-    connectionTypeWidget.value = ConnectionTypes.SERIAL.name
+    connectionTypeWidget.value = f'{ConnectionTypes.SERIAL.value}'
 
     def refreshPorts(e):
-        httpServices.connect(
-            httpServices.clientIP, httpServices.clientPort, HTTPServices.onError)  # delete
         portDropdownWidget.disabled = True
         refreshButton.disabled = True
         connectButton.disabled = True
+        connectionTypeWidget.disabled = True
+        textIP.disabled = True
+        textPort.disabled = True
         portsThread = threading.Thread(target=portDropdown, args=(
             page, portDropdownWidget), daemon=True)
         portsThread.start()
@@ -155,6 +266,8 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
                 [
                     portDropdownWidget,
                     baudrateDropdownWidget,
+                    textIP,
+                    textPort
                 ]
             ),
             ft.Row(

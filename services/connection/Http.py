@@ -10,8 +10,8 @@ class HTTPServices:
         self.actiosService = actionsService
         self.sensorsService = sensorsService
         self.sendInterval = 3
-        self.clientIP = "192.168.150.104"  # delete
-        self.clientPort = "80"  # delete
+        self.clientIP = None
+        self.clientPort = None
         self.isConnected = False
 
     @staticmethod
@@ -44,8 +44,8 @@ class HTTPServices:
                 self.isConnected = False
                 onError()
 
-    def sendConnectionRequest(self, clientIP, clientPort):
-        url = f'http://{clientIP}:{clientPort}/connect'
+    def sendConnectionRequest(self):
+        url = f'http://{self.clientIP}:{self.clientPort}/connect'
         print(f'Requesting connection to: {url}')
         response = requests.post(
             url=url, verify=False, params={"ipAddress": f'{self.hostIP}'})
@@ -55,17 +55,29 @@ class HTTPServices:
             print(
                 f"HTTP connection stablished: {response.status_code}->{response.text}")
 
-    @staticmethod
-    def onError():  # delete
-        pass
+    def sendDisconnectionRequest(self):
+        url = f'http://{self.clientIP}:{self.clientPort}/connect'
+        print(f'Requesting disconnection to: {url}')
+        response = requests.post(
+            url=url, verify=False)
+        if response.status_code != 400:
+            raise Exception(
+                f"HTTP disconnection error: {response.status_code}")
+        else:
+            print(
+                f"HTTP disconnection success: {response.status_code}->{response.text}")
 
     def connect(self, clientIP, clientPort, onError):
         self.clientIP = clientIP
         self.clientPort = clientPort
         if not self.isConnected:
-            self.sendConnectionRequest(
-                clientIP=clientIP, clientPort=clientPort)
+            self.sendConnectionRequest()
             self.isConnected = True
             writeThread = threading.Thread(
                 target=HTTPServices.writeTask, args=(self, onError), daemon=True)
             writeThread.start()
+
+    def disconnect(self):
+        if self.isConnected:
+            self.sendDisconnectionRequest()
+            self.isConnected = False

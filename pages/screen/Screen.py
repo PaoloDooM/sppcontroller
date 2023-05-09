@@ -9,17 +9,19 @@ textSendInterval = ft.TextField(
     label="Send interval (Seconds)", expand=1)
 sensorsWidget = ft.Column(
     [
-        ft.Container(content=ft.ProgressRing(width=32, height=32, stroke_width = 2), alignment=ft.alignment.center),
-        ft.Container(content=ft.Text("Initializing..."), alignment=ft.alignment.center)
+        ft.Container(content=ft.ProgressRing(width=32, height=32,
+                     stroke_width=2), alignment=ft.alignment.center),
+        ft.Container(content=ft.Text("Initializing..."),
+                     alignment=ft.alignment.center)
     ],
-    alignment = ft.MainAxisAlignment.CENTER,
+    alignment=ft.MainAxisAlignment.CENTER,
 )
 resetButton = ft.ElevatedButton("Reset")
 setButton = ft.ElevatedButton("Set")
 
 
 @inject
-def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsService], serialService: SerialService = Provide[Container.serialService]):
+def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsService], httpService: HTTPServices = Provide[Container.httpService], serialService: SerialService = Provide[Container.serialService]):
     def updateSensors(sensors):
         sensorsWidget.controls = [
             ft.Text(" CPU: {0} {1}".format(
@@ -40,7 +42,7 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
     sensorsService.createSensorsDaemon()
 
     textReadInterval.value = f'{sensorsService.readInterval}'
-    textSendInterval.value = f'{serialService.writeInterval}'
+    textSendInterval.value = '3'
 
     def verifyIntervals():
         errors = []
@@ -61,12 +63,14 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
         else:
             sensorsService.readInterval = int(textReadInterval.value)
             serialService.writeInterval = int(textSendInterval.value)
+            httpService.sendInterval = int(textSendInterval.value)
 
     def resetIntervals(e):
         textReadInterval.value = '2'
         sensorsService.readInterval = 2
         textSendInterval.value = '3'
         serialService.writeInterval = 3
+        httpService.sendInterval = 3
 
     setButton.on_click = setIntervals
     resetButton.on_click = resetIntervals
