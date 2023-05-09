@@ -11,12 +11,9 @@ class SerialService:
     def __init__(self, actionsService: ActionsService, sensorsService: SensorsService):
         self.baudrates = [50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200,
                           230400, 460800, 500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000]
-        self.writeThread = None
-        self.readThread = None
         self.actionsService = actionsService
         self.sensorsService = sensorsService
         self.conn: serial.Serial = None
-        self.writeInterval = 3
 
     @staticmethod
     def discoverSerialPorts():
@@ -59,13 +56,12 @@ class SerialService:
             self.conn = serial.Serial(port=port, baudrate=baudrate)
             self.conn.write(SerialService.stringCompleter("$cl$").encode())
             self.conn.flush()
-            self.writeThread = threading.Thread(
+            writeThread = threading.Thread(
                 target=SerialService.writeTask, args=(self, onError), daemon=True)
-            self.writeThread.start()
-            self.readThread = threading.Thread(
-            target=SerialService.readTask, args=(self, onError), daemon=True)
-            self.readThread.start()
-
+            writeThread.start()
+            readThread = threading.Thread(
+                target=SerialService.readTask, args=(self, onError), daemon=True)
+            readThread.start()
 
     def disconnect(self):
         if self.conn != None:
@@ -82,8 +78,8 @@ class SerialService:
                 self.conn.write(SerialService.stringCompleter("CPU: {0} {1}\r\n     {2} {3}\n\r\nRAM Usage: {4}%\n\r\nGPU: {5} {6}\r\n     {7} {8}".format(
                     self.sensorsService.sensors.cpuUsageToString(), self.sensorsService.sensors.cpuTempToString(), self.sensorsService.sensors.cpuPowerToString(), self.sensorsService.sensors.cpuClockToString(), self.sensorsService.sensors.ramUsageToString(), self.sensorsService.sensors.gpuUsageToString(), self.sensorsService.sensors.gpuTempToString(), self.sensorsService.sensors.gpuPowerToString() or self.sensorsService.sensors.gpuMemUsageToString(), self.sensorsService.sensors.gpuClockToString())).encode())
                 self.conn.flush()
-                time.sleep(self.writeInterval)
-                print(f'Data sended, sleep: {self.writeInterval}')
+                print(f'Data sended, sleep: {self.sensorsService.writeInterval}')
+                time.sleep(self.sensorsService.writeInterval)
             except:
                 print("Error sending data through serial connection")
                 onError()

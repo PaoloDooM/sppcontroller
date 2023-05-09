@@ -21,6 +21,7 @@ class SensorsService:
         self.sensors = Sensors(gpuType=gpuType)
         self.sensorsThread: threading.Thread = None
         self.readInterval = 2
+        self.writeInterval = 3
         self.readCallbacks = []
 
 
@@ -107,8 +108,8 @@ class SensorsService:
 
             for callback in self.readCallbacks:
                 callback(self.sensors)
-            time.sleep(self.readInterval)
             print(f'Reading sensors, sleep: {self.readInterval}')
+            time.sleep(self.readInterval)
 
 
     def createSensorsDaemon(self):

@@ -7,15 +7,17 @@
 #include <SSD1306Wire.h>
 #include "RouterConfig.h"
 
-#ifndef STASSID || STAPSK
-#define STASSID "wifiName"
-#define STAPSK  "wifiPass"
+#ifndef STASSID
+#define STASSID"wifiName"
+#endif
+#ifndef STAPSK
+#define STAPSK "wifiPass"
 #endif
 
 #define NB 6
 
 int btnsSt[NB] = {0, 0, 0, 0, 0, 0}, i;
-char* btnsCm[NB] = {"$03$", "$04$", "$05$", "$02$", "$01$", "$00$"};
+String btnsCm[NB] = {"03", "04", "05", "02", "01", "00"};
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const int btnsAd[NB] = {D0, D1, D2, D5, D6, D7}, led = 13;
@@ -172,7 +174,7 @@ void setup(void) {
   Serial.println(WiFi.localIP());
 
   display.clear();
-  display.drawString(0, 0, WiFi.localIP().toString());
+  display.drawString(0, 0, WiFi.localIP().toString() + ":80");
   display.display();
 
   if (MDNS.begin("esp8266")) {

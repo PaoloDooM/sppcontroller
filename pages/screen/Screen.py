@@ -5,7 +5,7 @@ from pages.utils import *
 
 textReadInterval = ft.TextField(
     label="Read interval (Seconds)", expand=1)
-textSendInterval = ft.TextField(
+textWriteInterval = ft.TextField(
     label="Send interval (Seconds)", expand=1)
 sensorsWidget = ft.Column(
     [
@@ -21,7 +21,7 @@ setButton = ft.ElevatedButton("Set")
 
 
 @inject
-def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsService], httpService: HTTPServices = Provide[Container.httpService], serialService: SerialService = Provide[Container.serialService]):
+def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsService]):
     def updateSensors(sensors):
         sensorsWidget.controls = [
             ft.Text(" CPU: {0} {1}".format(
@@ -42,7 +42,7 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
     sensorsService.createSensorsDaemon()
 
     textReadInterval.value = f'{sensorsService.readInterval}'
-    textSendInterval.value = '3'
+    textWriteInterval.value = f'{sensorsService.writeInterval}'
 
     def verifyIntervals():
         errors = []
@@ -50,10 +50,10 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
             errors.append("Read interval cannot be empty")
         elif not textReadInterval.value.isnumeric():
             errors.append("Read interval must be an integer")
-        if len(textSendInterval.value) == 0:
-            errors.append("Send interval cannot be empty")
-        elif not textSendInterval.value.isnumeric():
-            errors.append("Send interval must an integer")
+        if len(textWriteInterval.value) == 0:
+            errors.append("Write interval cannot be empty")
+        elif not textWriteInterval.value.isnumeric():
+            errors.append("Write interval must an integer")
         return errors
 
     def setIntervals(e):
@@ -62,15 +62,13 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
             displayErrorSnackBar(page, "\n".join(errors))
         else:
             sensorsService.readInterval = int(textReadInterval.value)
-            serialService.writeInterval = int(textSendInterval.value)
-            httpService.sendInterval = int(textSendInterval.value)
+            sensorsService.writeInterval = int(textWriteInterval.value)
 
     def resetIntervals(e):
         textReadInterval.value = '2'
         sensorsService.readInterval = 2
-        textSendInterval.value = '3'
-        serialService.writeInterval = 3
-        httpService.sendInterval = 3
+        textWriteInterval.value = '3'
+        sensorsService.writeInterval = 3
 
     setButton.on_click = setIntervals
     resetButton.on_click = resetIntervals
@@ -83,7 +81,7 @@ def screenView(page, sensorsService: SensorsService = Provide[Container.sensorsS
                     [
                         textReadInterval,
                         ft.Container(width=25),
-                        textSendInterval
+                        textWriteInterval
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_EVENLY
                 )

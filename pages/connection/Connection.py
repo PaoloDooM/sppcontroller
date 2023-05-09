@@ -61,7 +61,7 @@ textPort = ft.TextField(
 
 
 @inject
-def connectionView(page, serialService: SerialService = Provide[Container.serialService], httpServices: HTTPServices = Provide[Container.httpService]):
+def connectionView(page, serialService: SerialService = Provide[Container.serialService], httpService: HTTPService = Provide[Container.httpService]):
 
     def onError():
         connectionTypeWidget.disabled = False
@@ -101,7 +101,7 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
             baudrateDropdownWidget.disabled = True
             textIP.disabled = True
             textPort.disabled = True
-            httpServices.connect(
+            httpService.connect(
                 textIP.value, textPort.value, onError)
             connectButton.visible = False
             disconnectButton.visible = True
@@ -121,7 +121,7 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
 
     def httpDisconnect(e):
         try:
-            httpServices.disconnect()
+            httpService.disconnect()
             connectButton.visible = True
             disconnectButton.visible = False
             portDropdownWidget.disabled = False

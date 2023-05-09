@@ -47,7 +47,6 @@ class Container(containers.DeclarativeContainer):
     )
 
     httpService = providers.Factory(
-        HTTPServices,
-        actionsService,
+        HTTPService,
         sensorsService
     )

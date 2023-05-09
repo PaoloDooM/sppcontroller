@@ -4,17 +4,19 @@ sys.dont_write_bytecode = True  # nopep8
 import flet as ft
 from pages.MainLayout import *
 
+
 def main():
     ft.app(target=appInit, assets_dir="assets")
 
 
 def appInit(page: ft.Page):
-    page.title = "SPPController"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.theme_mode = 'dark'
     page.window_height = 500
     page.window_width = 500
     page.window_maximizable = False
     page.window_resizable = False
+    page.title = "SPPController"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.add(mainLayoutView(page=page))
 
 
