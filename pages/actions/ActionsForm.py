@@ -36,7 +36,6 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
     def save_button_clicked(e):
         try:
             actionVerifier()
-            print(f"{dropdownActionType.value} == {ActionTypes.USER_INPUT.value}")
             if dropdownActionType.value == ActionTypes.USER_INPUT.value:
                 automationVerify(action=textFieldAction.value)
             persistence.upsertAction(Action(

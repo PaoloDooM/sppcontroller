@@ -45,14 +45,16 @@
   </code>
 </pre>
 
-<p>To execute user keyboard/mouse inputs you need to add an action with the type "User input" and a json that describes the input sequence, this json must be an array of events, each event must contain a field named "type" that describes the input method, inputs methods can be: click, write, sleep or hotkey. Each type of input method have unique required fields, this example shows the required fields for each case:</p>
+<p>To execute user keyboard/mouse inputs you need to add an action with the type "User input" and a json that describes the input sequence, this json must be an array of events, each event must contain a field named "type" that describes the input method, inputs methods can be: "click", "write", "sleep" or "hotkey". Each type of input method have unique required fields, this example shows the required fields for each case:</p>
 <pre>
   <code>
     [
-      {"type":"click","x":300, "y":-300},
-      {"type":"write","text":"abc123"},
-      {"type":"sleep","interval":3},
+      {"type":"click","x":300, "y":-300,"interval":1},
+      {"type":"write","text":"abc123","interval":0.5},
+      {"type":"sleep","interval":1},
       {"type":"hotkey","keys":["ctrl","g"]}
     ]
   </code>
 </pre>
+<p>In case of input event "hotkey", only supported keys will be accepted for the field "keys". <a href="https://pyautogui.readthedocs.io/en/latest/keyboard.html#keyboard-keys">Supported keys.</a><p>
+<p>Field "interval" is required only for the event type "sleep", in the remaining methods is an optional field.</p>
