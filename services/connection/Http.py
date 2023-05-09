@@ -35,7 +35,7 @@ class HTTPServices:
             try:
                 url = f'http://{self.clientIP}:{self.clientPort}/display'
                 print(f'Requesting display to: {url}')
-                response = requests.post(url=url, verify=False, params={"display": "CPU: {0} {1}\r\n     {2} {3}\r\nRAM Usage: {4}%\r\nGPU: {5} {6}\r\n     {7} {8}".format(
+                response = requests.post(url=url, verify=False, params={"display": "CPU: {0} {1}\r\n          {2} {3}\r\nRAM Usage: {4}%\r\nGPU: {5} {6}\r\n          {7} {8}".format(
                     self.sensorsService.sensors.cpuUsageToString(), self.sensorsService.sensors.cpuTempToString(), self.sensorsService.sensors.cpuPowerToString(), self.sensorsService.sensors.cpuClockToString(), self.sensorsService.sensors.ramUsageToString(), self.sensorsService.sensors.gpuUsageToString(), self.sensorsService.sensors.gpuTempToString(), self.sensorsService.sensors.gpuPowerToString() or self.sensorsService.sensors.gpuMemUsageToString(), self.sensorsService.sensors.gpuClockToString())})
                 time.sleep(self.sendInterval)
                 print(f'{response.text}, sleep: {self.sendInterval}')
