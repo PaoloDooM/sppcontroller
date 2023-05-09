@@ -26,14 +26,14 @@
 </ul>
 
 <p>Run command:</p>
-<ul>
-  <li>flet run .\SPPController.py -d</li>
-</ul>
+<pre>
+  <code>flet run .\SPPController.py -d</code>
+</pre>
 
 <p>Compile command:</p>
-<ul>
-  <li>flet pack .\SPPController.py --icon .\assets\icon.ico --hidden-import dependency_injector.errors --hidden-import api.apis</li>
-</ul>
+<pre>
+  <code>flet pack .\SPPController.py --icon .\assets\icon.ico --hidden-import dependency_injector.errors --hidden-import api.apis</code>
+</pre>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>
 
