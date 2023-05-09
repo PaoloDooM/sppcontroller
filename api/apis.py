@@ -7,7 +7,7 @@ from containers.Container import *
 
 api = Flask(__name__)
 def flaskStart(api, port):
-    print(f"Starting server on port: {port}!")
+    print(f"Starting server on port: {port}")
     serve(api, host="0.0.0.0", port=port)
 flaskThread = threading.Thread(target=flaskStart, args=[api, 53000], daemon=True)
 flaskThread.start()

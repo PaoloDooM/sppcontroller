@@ -16,14 +16,14 @@ def getActionTypeOptions():
 def actionsFormView(page, changeActionsTab, action: Action = None, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
 
     textFieldButton = ft.TextField(
-        label="Button", value=None if action == None else action.button, disabled=action != None)
+        label="Button", value=None if action == None else action.button, disabled=action != None, max_lines=1)
     dropdownActionType = ft.Dropdown(
         options=getActionTypeOptions(),
         label="Action type",
         value=None if action == None else action.type.value
     )
     textFieldAction = ft.TextField(
-        label="Action", value=None if action == None else action.data)
+        label="Action", value=None if action == None else action.data, multiline=True, min_lines=5, max_lines=5)
 
     def updateTextFieldButton(button):
         if action == None:
@@ -36,6 +36,9 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
     def save_button_clicked(e):
         try:
             actionVerifier()
+            print(f"{dropdownActionType.value} == {ActionTypes.USER_INPUT.value}")
+            if dropdownActionType.value == ActionTypes.USER_INPUT.value:
+                automationVerify(action=textFieldAction.value)
             persistence.upsertAction(Action(
                 button=textFieldButton.value, type=dropdownActionType.value, data=textFieldAction.value))
             changeActionsTab(True)

@@ -22,16 +22,37 @@
     <li>pip install --user flask</li>
     <li>pip install --user requests</li>
     <li>pip install --user waitress</li>
+    <li>pip install --user PyAutoGUI</li>
 </ul>
 
 <p>Run command:</p>
 <ul>
-  <li>flet run .\main.py</li>
+  <li>flet run .\SPPController.py -d</li>
 </ul>
 
 <p>Compile command:</p>
 <ul>
-  <li>flet pack .\main.py --icon .\assets\icon.ico --hidden-import dependency_injector.errors --hidden-import api.apis</li>
+  <li>flet pack .\SPPController.py --icon .\assets\icon.ico --hidden-import dependency_injector.errors --hidden-import api.apis</li>
 </ul>
 
 <p>This app needs to be launched as administrator to read all performance stats.</p>
+
+<h3>Usage instructions</h3>
+<p>To launch programs, batches or shell scripts, you need to add an action with the type "Executable path" and the path to the executable plus arguments, like in this example:</p>
+<pre>
+  <code>
+    C:\Users\PaoloDooM\AppData\Local\Discord\Update.exe --processStart Discord.exe
+  </code>
+</pre>
+
+<p>To execute user keyboard/mouse inputs you need to add an action with the type "User input" and a json that describes the input sequence, this json must be an array of events, each event must contain a field named "type" that describes the input method, inputs methods can be: click, write, sleep or hotkey. Each type of input method have unique required fields, this example shows the required fields for each case:</p>
+<pre>
+  <code>
+    [
+      {"type":"click","x":300, "y":-300},
+      {"type":"write","text":"abc123"},
+      {"type":"sleep","interval":3},
+      {"type":"hotkey","keys":["ctrl","g"]}
+    ]
+  </code>
+</pre>

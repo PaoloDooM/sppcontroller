@@ -13,6 +13,9 @@ actionCardsList = ft.ListView(controls=[], padding=ft.padding.only(bottom=75))
 
 @inject
 def actionsListView(page, changeActionsTab, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
+
+    actionsService.setPage(page=page)
+
     def updateLastButtonWidget(button):
         lastButtonWidget.content = ft.Text(f'Last button pressed: {button}')
         page.update()
@@ -22,6 +25,7 @@ def actionsListView(page, changeActionsTab, actionsService: ActionsService = Pro
         page.update()
 
     def buildActionCards(actions: Action):
+        actionsService.setActions(actions)
         cards = []
         for action in actions:
             cards.append(actionCard(

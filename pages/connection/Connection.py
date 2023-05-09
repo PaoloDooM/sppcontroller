@@ -34,6 +34,7 @@ def createPortOptions(ports):
 
 connectionTypeWidget = ft.Dropdown(
     options=createConnectionTypesOptions(),
+    label="Connection type"
 )
 portDropdownWidget = ft.Dropdown(
     options=[ft.dropdown.Option(text=discoveringLabel)],
@@ -64,15 +65,23 @@ textPort = ft.TextField(
 def connectionView(page, serialService: SerialService = Provide[Container.serialService], httpService: HTTPService = Provide[Container.httpService]):
 
     def onError():
+        try:
+            if f'{connectionTypeWidget.value}' == f'{ConnectionTypes.SERIAL.value}':
+                serialService.disconnect()
+            elif f'{connectionTypeWidget.value}' == f'{ConnectionTypes.HTTP.value}':
+                httpService.disconnect()
+        except:
+            print(f"Error disconecting from {list(ConnectionTypes)[int(connectionTypeWidget.value)].name}")
+        displayErrorSnackBar(page, "Connection closed!")
         connectionTypeWidget.disabled = False
         disconnectButton.visible = False
         connectButton.visible = True
-        serialService.disconnect()
-        displayErrorSnackBar(page, "Connection closed!")
         portDropdownWidget.disabled = False
         refreshButton.disabled = False
         connectButton.disabled = False
         baudrateDropdownWidget.disabled = False
+        textPort.disabled = False
+        textIP.disabled = False
         page.update()
 
     def httpConnectionVerify(ip, port):
@@ -150,7 +159,6 @@ def connectionView(page, serialService: SerialService = Provide[Container.serial
             textPort.visible = True
             portDropdownWidget.visible = False
             baudrateDropdownWidget.visible = False
-            refreshButton.visible = True
             refreshButton.visible = False
             connectButton.on_click = httpConnect
             disconnectButton.on_click = httpDisconnect
