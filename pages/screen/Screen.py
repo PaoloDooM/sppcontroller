@@ -6,7 +6,7 @@ from pages.utils import *
 textReadInterval = ft.TextField(
     label="Read interval (Seconds)", expand=1)
 textWriteInterval = ft.TextField(
-    label="Send interval (Seconds)", expand=1)
+    label="Write interval (Seconds)", expand=1)
 sensorsWidget = ft.Column(
     [
         ft.Container(content=ft.ProgressRing(width=32, height=32,
