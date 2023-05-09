@@ -21,6 +21,7 @@
     <li>pip install --user pyinstaller</li>
     <li>pip install --user flask</li>
     <li>pip install --user requests</li>
+    <li>pip install --user waitress</li>
 </ul>
 
 <p>Run command:</p>

@@ -3,7 +3,6 @@ from pages.actions.ActionsList import *
 from pages.actions.ActionsForm import *
 from pages.connection.Connection import *
 from pages.screen.Screen import *
-from dependency_injector.wiring import Provide, inject
 
 tabView = ft.Tabs(
     selected_index=0,

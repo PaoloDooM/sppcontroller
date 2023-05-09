@@ -3,8 +3,6 @@ sys.dont_write_bytecode = True  # nopep8
 
 import flet as ft
 from pages.MainLayout import *
-from containers.Container import *
-
 
 def main():
     ft.app(target=appInit, assets_dir="assets")
@@ -26,6 +24,6 @@ if __name__ == "__main__":
     # container.config.timeout.from_env("TIMEOUT", as_=int, default=5)
     # container.init_resources()
     container.wire(
-        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.actions.widgets.ActionCard", "pages.screen.Screen"])
+        modules=["pages.connection.Connection", "pages.actions.ActionsList", "pages.actions.ActionsForm", "pages.actions.widgets.ActionCard", "pages.screen.Screen", "api.apis"])
     # main(*sys.argv[1:])
     main()

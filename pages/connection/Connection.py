@@ -1,12 +1,12 @@
 import flet as ft
 from models.ConnectionTypes import ConnectionTypes
-from services.connection.Serial import *
 import threading
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 from pages.utils import *
 
 discoveringLabel = "Discovering ports..."
+
 
 def createConnectionTypesOptions():
     options = []
@@ -32,7 +32,6 @@ def createPortOptions(ports):
 
 connectionTypeWidget = ft.Dropdown(
     options=createConnectionTypesOptions(),
-    disabled=True
 )
 portDropdownWidget = ft.Dropdown(
     options=[ft.dropdown.Option(text=discoveringLabel)],
@@ -56,13 +55,18 @@ disconnectButton = ft.ElevatedButton(
 
 
 @inject
-def connectionView(page, actionsService: ActionsService = Provide[Container.actionsService], serialService: SerialService = Provide[Container.serialService]):
+def connectionView(page, serialService: SerialService = Provide[Container.serialService], httpServices: HTTPServices = Provide[Container.httpService]):
+
+    def onConecctionTypeChange():
+        page.update()
 
     def portDropdown(page, portDropdownWidget):
-        portDropdownWidget.options = [ft.dropdown.Option(text=discoveringLabel)]
+        portDropdownWidget.options = [
+            ft.dropdown.Option(text=discoveringLabel)]
         portDropdownWidget.value = discoveringLabel
         page.update()
-        portDropdownWidget.options = createPortOptions(serialService.discoverSerialPorts())
+        portDropdownWidget.options = createPortOptions(
+            serialService.discoverSerialPorts())
         portDropdownWidget.disabled = False
         portDropdownWidget.value = None
         refreshButton.disabled = False
@@ -76,7 +80,7 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
         if len(f'{baudrate}' if baudrate != None else "") == 0:
             errors.append('Baudrate cannot be empty')
         return errors
-    
+
     def onError():
         disconnectButton.visible = False
         connectButton.visible = True
@@ -98,7 +102,8 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
         baudrateDropdownWidget.disabled = False
 
     def serialConnect(e):
-        errors = serialConnectionVerify(portDropdownWidget.value, baudrateDropdownWidget.value)
+        errors = serialConnectionVerify(
+            portDropdownWidget.value, baudrateDropdownWidget.value)
         if len(errors) != 0:
             displayErrorSnackBar(page, "\n".join(errors))
             return
@@ -108,9 +113,9 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
             connectButton.disabled = True
             baudrateDropdownWidget.disabled = True
             print("{0} - {1}".format(portDropdownWidget.value,
-                    baudrateDropdownWidget.value))
+                                     baudrateDropdownWidget.value))
             serialService.connect(port=portDropdownWidget.value,
-                                    baudrate=baudrateDropdownWidget.value, onError=onError)
+                                  baudrate=baudrateDropdownWidget.value, onError=onError)
             connectButton.visible = False
             disconnectButton.visible = True
             page.update()
@@ -125,6 +130,8 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
     connectionTypeWidget.value = ConnectionTypes.SERIAL.name
 
     def refreshPorts(e):
+        httpServices.connect(
+            httpServices.clientIP, httpServices.clientPort, HTTPServices.onError)  # delete
         portDropdownWidget.disabled = True
         refreshButton.disabled = True
         connectButton.disabled = True
@@ -133,11 +140,9 @@ def connectionView(page, actionsService: ActionsService = Provide[Container.acti
         portsThread.start()
         page.update()
 
-
-    refreshButton.on_click=refreshPorts
-    connectButton.on_click=serialConnect
-    disconnectButton.on_click=serialDisconnect
-   
+    refreshButton.on_click = refreshPorts
+    connectButton.on_click = serialConnect
+    disconnectButton.on_click = serialDisconnect
 
     return ft.Column(
         [

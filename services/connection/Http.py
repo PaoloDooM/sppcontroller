@@ -1,26 +1,19 @@
 import socket
-from flask import Flask, request
+import time
 import threading
 import requests
 
-api = Flask(__name__)
-
-def flaskStart(port):
-    api.run(port=port)
-
-flaskThread = threading.Thread(target=flaskStart, args=[53000], daemon=True)
-flaskThread.start()
 
 class HTTPServices:
-
     def __init__(self, actionsService, sensorsService):
         self.hostIP = HTTPServices.getIP()
         self.actiosService = actionsService
         self.sensorsService = sensorsService
         self.sendInterval = 3
-        self.clientIP = None
-        self.clientPort = None
-        
+        self.clientIP = "192.168.150.104"  # delete
+        self.clientPort = "80"  # delete
+        self.isConnected = False
+
     @staticmethod
     def getIP():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -36,16 +29,43 @@ class HTTPServices:
         print(f'SPPController IP:  {IP}')
         return IP
 
-    @api.route('/buttons', methods=['POST'])
-    def registerAction(self):
-        btn = request.json['btn']
-        print(f'last button pressed: {btn}')
-        self.actionsService.registerButtonEvent(btn)
-        return 'Acknowledged'
-    
     @staticmethod
-    def writeTask(self):
-        while True:
-            response = requests.post(url=f'http://{self.clientIP}:{self.clientPort}/display', data="CPU: {0} {1}\r\n     {2} {3}\n\r\nRAM Usage: {4}%\n\r\nGPU: {5} {6}\r\n     {7} {8}".format(
-                        self.sensorsService.sensors.cpuUsageToString(), self.sensorsService.sensors.cpuTempToString(), self.sensorsService.sensors.cpuPowerToString(), self.sensorsService.sensors.cpuClockToString(), self.sensorsService.sensors.ramUsageToString(), self.sensorsService.sensors.gpuUsageToString(), self.sensorsService.sensors.gpuTempToString(), self.sensorsService.sensors.gpuPowerToString() or self.sensorsService.sensors.gpuMemUsageToString(), self.sensorsService.sensors.gpuClockToString()))
-            print(response.text)
+    def writeTask(self, onError):
+        while self.isConnected:
+            try:
+                url = f'http://{self.clientIP}:{self.clientPort}/display'
+                print(f'Requesting display to: {url}')
+                response = requests.post(url=url, verify=False, params={"display": "CPU: {0} {1}\r\n     {2} {3}\r\nRAM Usage: {4}%\r\nGPU: {5} {6}\r\n     {7} {8}".format(
+                    self.sensorsService.sensors.cpuUsageToString(), self.sensorsService.sensors.cpuTempToString(), self.sensorsService.sensors.cpuPowerToString(), self.sensorsService.sensors.cpuClockToString(), self.sensorsService.sensors.ramUsageToString(), self.sensorsService.sensors.gpuUsageToString(), self.sensorsService.sensors.gpuTempToString(), self.sensorsService.sensors.gpuPowerToString() or self.sensorsService.sensors.gpuMemUsageToString(), self.sensorsService.sensors.gpuClockToString())})
+                time.sleep(self.sendInterval)
+                print(f'{response.text}, sleep: {self.sendInterval}')
+            except:
+                print("Error sending data through HTTP connection")
+                self.isConnected = False
+                onError()
+
+    def sendConnectionRequest(self, clientIP, clientPort):
+        url = f'http://{clientIP}:{clientPort}/connect'
+        print(f'Requesting connection to: {url}')
+        response = requests.post(
+            url=url, verify=False, params={"ipAddress": f'{self.hostIP}'})
+        if response.status_code != 200:
+            raise Exception(f"HTTP connection error: {response.status_code}")
+        else:
+            print(
+                f"HTTP connection stablished: {response.status_code}->{response.text}")
+
+    @staticmethod
+    def onError():  # delete
+        pass
+
+    def connect(self, clientIP, clientPort, onError):
+        self.clientIP = clientIP
+        self.clientPort = clientPort
+        if not self.isConnected:
+            self.sendConnectionRequest(
+                clientIP=clientIP, clientPort=clientPort)
+            self.isConnected = True
+            writeThread = threading.Thread(
+                target=HTTPServices.writeTask, args=(self, onError), daemon=True)
+            writeThread.start()

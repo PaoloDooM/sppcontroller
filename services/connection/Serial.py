@@ -83,7 +83,7 @@ class SerialService:
                     self.sensorsService.sensors.cpuUsageToString(), self.sensorsService.sensors.cpuTempToString(), self.sensorsService.sensors.cpuPowerToString(), self.sensorsService.sensors.cpuClockToString(), self.sensorsService.sensors.ramUsageToString(), self.sensorsService.sensors.gpuUsageToString(), self.sensorsService.sensors.gpuTempToString(), self.sensorsService.sensors.gpuPowerToString() or self.sensorsService.sensors.gpuMemUsageToString(), self.sensorsService.sensors.gpuClockToString())).encode())
                 self.conn.flush()
                 time.sleep(self.writeInterval)
-                print(f'Sending data, sleep: {self.writeInterval}')
+                print(f'Data sended, sleep: {self.writeInterval}')
             except:
                 print("Error sending data through serial connection")
                 onError()

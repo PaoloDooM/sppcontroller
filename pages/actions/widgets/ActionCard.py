@@ -1,7 +1,5 @@
 import flet as ft
-from models.Action import *
 import math
-from persistence.Persistence import *
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 
