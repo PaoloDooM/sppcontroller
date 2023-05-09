@@ -1,0 +1,35 @@
+{
+    "name": "SPPController",
+    "short_name": "SPPC",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#333333",
+    "theme_color": "#00b4d8",
+    "description": "A simple app written in python3 that sends and recieve data from microcontrollers via serial protocol, bluetooth and http.",
+    "orientation": "natural",
+    "prefer_related_applications": false,
+    "icons": [
+      {
+        "src": "icons/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icons/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      },
+      {
+        "src": "icons/icon-maskable-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "icons/icon-maskable-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      }
+    ]
+  }
