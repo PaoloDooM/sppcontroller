@@ -1,7 +1,7 @@
 /dist/
 /build/
-/pic18f2550/*.hex
-/esp8266_sppcontroller/RouterConfig.h
+/microcontrollers/pic18f2550/*.hex
+/microcontrollers/esp8266_sppcontroller/RouterConfig.h
 /libs/*.sys
 __pycache__
 db.json

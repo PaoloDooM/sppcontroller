@@ -13,7 +13,7 @@ Board: PIC18F2550
 
 int btnsAD[NB] = {10, 7, 6, 15, 14, 13}, i;
 BOOL btnsSt[NB] = {false,   false,   false,   false,  false,  false};
-char* btnsCm[NB] = {"$00$","$01$","$02$","$03$", "$04$", "$05$"};
+char* btnsCm[NB] = {"$00$","$02$","$01$","$05$", "$04$", "$03$"};
 const u8 intf = OLED_I2C1;
 
 void setup() {
@@ -38,6 +38,8 @@ void readBtns(){
                 toggle(USERLED);
                 Serial.printf(btnsCm[i]);
                 Serial.flush();
+                OLED.clearScreen(intf);
+                OLED.print(intf, btnsCm[i]);
             }
             btnsSt[i]=!btnsSt[i];
          }
