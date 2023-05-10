@@ -1,3 +1,4 @@
+import uuid
 from models.ActionTypes import ActionTypes
 from persistence.Persistence import Persistence
 from services.actions.Executer import *
@@ -10,7 +11,7 @@ class ActionsService:
         self.buttonEventCallbacks = []
         self.actions = []
         self.page = None
-        self.clientPassword = None
+        self.clientPassword = str(uuid.uuid4())
 
     def setClientPassword(self, password):
         self.clientPassword = password
