@@ -23,6 +23,7 @@
     <li>pip install --user requests</li>
     <li>pip install --user waitress</li>
     <li>pip install --user PyAutoGUI</li>
+    <li>pip install --user flask-jwt-extended</li>
 </ul>
 
 <p>Run command:</p>
