@@ -75,7 +75,12 @@ class HTTPService:
                 target=HTTPService.writeTask, args=(self, onError), daemon=True)
             writeThread.start()
 
-    def disconnect(self):
-        if self.isConnected:
+    def disconnect(self, clientIP = None, clientPort = None):
+        refresh = False
+        if clientIP != None and clientPort != None:
+            self.clientIP = clientIP
+            self.clientPort = clientPort
+            refresh = True
+        if self.isConnected or refresh:
             self.sendDisconnectionRequest()
             self.isConnected = False

@@ -29,6 +29,7 @@ def registerAction(actionsService: ActionsService = Provide[Container.actionsSer
     if "btn" in request.json:
         actionsService.registerButtonEvent(request.json['btn'])
         return Response(response='Acknowledged', content_type="text/plain", status=200)
+    print('Bad params on HTTP \"/buttons\"')
     return Response(response='Bad params', content_type="text/plain", status=400)
 
 
@@ -40,6 +41,6 @@ def authenticate(actionsService: ActionsService = Provide[Container.actionsServi
         return Response(response='Bad params', content_type="text/plain", status=400)
     elif (actionsService.clientPassword == request.json["password"] and request.json["username"] == "sppcontroller"):
         print('HTTP connection authenticated')
-        return Response(response=f'Bearer {create_access_token(request.json["username"])}', content_type="text/plain", status=200)
+        return Response(response=create_access_token(request.json["username"]), content_type="text/plain", status=200)
     print('Failed authentication on HTTP connection')
     return Response(response='Unauthorized', content_type="text/plain", status=401)
