@@ -6,6 +6,7 @@ import time
 import threading
 import clr
 
+
 class SensorsService:
     def __init__(self):
         gpuType = GpuTypes.NONE
@@ -24,7 +25,6 @@ class SensorsService:
         self.writeInterval = 3
         self.readCallbacks = []
 
-
     def addReadCallback(self, callback):
         self.readCallbacks.append(callback)
 
@@ -37,15 +37,12 @@ class SensorsService:
         openHardwareMonitor.GPUEnabled = True
         openHardwareMonitor.Open()
 
-
         if (self.sensors.gpuType == GpuTypes.AMD):
             from pyadl import ADLManager
-
 
         def getMaxCpuClock(cpuClocks):
             cpuClocks.sort(reverse=True)
             return cpuClocks[0]
-
 
         while True:
             self.sensors.setCpuUsage(psutil.cpu_percent())
@@ -55,7 +52,7 @@ class SensorsService:
                 self.sensors.setGpuMemUsage(GPUtil.getGPUs()[0].memoryUtil)
             elif (self.sensors.gpuType == GpuTypes.AMD):
                 self.sensors.setGpuUsage(ADLManager.getInstance().getDevices()
-                                    [0].getCurrentUsage())
+                                         [0].getCurrentUsage())
 
             try:
                 for i in range(2):
@@ -63,18 +60,20 @@ class SensorsService:
                     for a in range(0, len(openHardwareMonitor.Hardware[i].Sensors)):
                         # print(
                         # openHardwareMonitor.Hardware[i].Sensors[a].Identifier)
+                        # print("    {0}".format(
+                        # openHardwareMonitor.Hardware[i].Sensors[a].get_Value()))
                         if (i == 0):
                             if "/clock" in str(openHardwareMonitor.Hardware[i].Sensors[a].Identifier):
                                 cpuClocks.append(
                                     openHardwareMonitor.Hardware[i].Sensors[a].get_Value())
-                                # print("    {0}".format(
+                                # print("    {0}Mhz".format(
                                 # openHardwareMonitor.Hardware[i].Sensors[a].get_Value()))
                                 openHardwareMonitor.Hardware[i].Update()
                         else:
                             if "/clock/0" in str(openHardwareMonitor.Hardware[i].Sensors[a].Identifier):
                                 self.sensors.setGpuClock(
                                     openHardwareMonitor.Hardware[i].Sensors[a].get_Value())
-                                # print("    {0}".format(
+                                # print("    {0}Mhz".format(
                                 # openHardwareMonitor.Hardware[i].Sensors[a].get_Value()))
                                 openHardwareMonitor.Hardware[i].Update()
                         if "/power/0" in str(openHardwareMonitor.Hardware[i].Sensors[a].Identifier):
@@ -84,7 +83,7 @@ class SensorsService:
                             else:
                                 self.sensors.setGpuPower(
                                     openHardwareMonitor.Hardware[i].Sensors[a].get_Value())
-                            # print("    {0}W".format(
+                                # print("    {0}W".format(
                                 # openHardwareMonitor.Hardware[i].Sensors[a].get_Value()))
                             openHardwareMonitor.Hardware[i].Update()
                         elif "/temperature/0" in str(openHardwareMonitor.Hardware[i].Sensors[a].Identifier):
@@ -94,7 +93,7 @@ class SensorsService:
                             else:
                                 self.sensors.setGpuTemp(
                                     openHardwareMonitor.Hardware[i].Sensors[a].get_Value())
-                            # print("    {0}C".format(
+                                # print("    {0}C".format(
                                 # openHardwareMonitor.Hardware[i].Sensors[a].get_Value()))
                             openHardwareMonitor.Hardware[i].Update()
                     if len(cpuClocks) != 0:
@@ -111,8 +110,8 @@ class SensorsService:
             print(f'Reading sensors, sleep: {self.readInterval}')
             time.sleep(self.readInterval)
 
-
     def createSensorsDaemon(self):
         if self.sensorsThread == None:
-            self.sensorsThread = threading.Thread(target=SensorsService.sensorsTask, args=[self], daemon=True)
+            self.sensorsThread = threading.Thread(
+                target=SensorsService.sensorsTask, args=[self], daemon=True)
             self.sensorsThread.start()
