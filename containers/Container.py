@@ -42,7 +42,6 @@ class Container(containers.DeclarativeContainer):
 
     serialService = providers.Factory(
         SerialService,
-        actionsService,
         sensorsService
     )
 

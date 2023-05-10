@@ -13,19 +13,30 @@
 #ifndef STAPSK
 #define STAPSK "wifiPass"
 #endif
-
+#define MAX_UID 8
 #define NB 6
 
 int btnsSt[NB] = {0, 0, 0, 0, 0, 0}, i;
-String btnsCm[NB] = {"03", "04", "05", "02", "01", "00"};
+String btnsCm[NB] = {"$03$", "$04$", "$05$", "$02$", "$01$", "$00$"};
 const char* ssid = STASSID;
 const char* password = STAPSK;
 const int btnsAd[NB] = {D0, D1, D2, D5, D6, D7}, led = 13;
-String token = "", serverIp = "";
+String token = "", serverIp = "", connectionPassword = "";
 
 ESP8266WebServer server(80);
 SSD1306Wire display(0x3C, D4, D3);
 WiFiClient wifiClient;
+
+const char * generateUID(){
+  const char possible[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  static char uid[MAX_UID + 1];
+  for(int p = 0, i = 0; i < MAX_UID; i++){
+    int r = random(0, strlen(possible));
+    uid[p++] = possible[r];
+  }
+  uid[MAX_UID] = '\0';
+  return uid;
+}
 
 void handleRoot() {
   digitalWrite(led, 1);
@@ -59,7 +70,7 @@ void handleConnect() {
     serverIp = server.arg("ipAddress");
     http.begin(wifiClient, "http://" + serverIp + ":53000/authenticate");
     http.addHeader("Content-Type", "application/json");
-    int httpCode = http.POST("{\"password\":\"9DTUdnKN5z4jPVaKYAdBjX7C\",\"username\":\"sppcontroller\"}");
+    int httpCode = http.POST("{\"password\":\"" + connectionPassword + "\",\"username\":\"sppcontroller\"}");
     if (httpCode == 200) {
       token = http.getString();
       Serial.print("Authenticated: ");
@@ -114,6 +125,10 @@ void handleDisplay() {
 void clearWsCfg() {
   serverIp = "";
   token = "";
+  connectionPassword = generateUID();
+  display.clear();
+  display.drawString(0, 0, WiFi.localIP().toString() + ":80\n" + connectionPassword);
+  display.display();
 }
 
 void readBtns() {
@@ -173,8 +188,10 @@ void setup(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  connectionPassword = generateUID();
+
   display.clear();
-  display.drawString(0, 0, WiFi.localIP().toString() + ":80");
+  display.drawString(0, 0, WiFi.localIP().toString() + ":80\n" + connectionPassword);
   display.display();
 
   if (MDNS.begin("esp8266")) {

@@ -10,6 +10,10 @@ class ActionsService:
         self.buttonEventCallbacks = []
         self.actions = []
         self.page = None
+        self.clientPassword = None
+
+    def setClientPassword(self, password):
+        self.clientPassword = password
 
     def setPage(self, page):
         self.page = page

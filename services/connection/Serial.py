@@ -2,16 +2,14 @@ import sys
 import glob
 import time
 import serial
-from services.actions.ActionsService import ActionsService
 from services.sensors.Sensors import *
 
 
 class SerialService:
 
-    def __init__(self, actionsService: ActionsService, sensorsService: SensorsService):
+    def __init__(self, sensorsService: SensorsService):
         self.baudrates = [50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200,
                           230400, 460800, 500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000]
-        self.actionsService = actionsService
         self.sensorsService = sensorsService
         self.conn: serial.Serial = None
 
@@ -51,7 +49,7 @@ class SerialService:
         else:
             return SerialService.stringCompleter("{0}\r".format(data))
 
-    def connect(self, port, baudrate, onError):
+    def connect(self, port, baudrate, actionsService, onError):
         if self.conn == None:
             self.conn = serial.Serial(port=port, baudrate=baudrate)
             self.conn.write(SerialService.stringCompleter("$cl$").encode())
@@ -60,12 +58,14 @@ class SerialService:
                 target=SerialService.writeTask, args=(self, onError), daemon=True)
             writeThread.start()
             readThread = threading.Thread(
-                target=SerialService.readTask, args=(self, onError), daemon=True)
+                target=SerialService.readTask, args=(self, actionsService, onError), daemon=True)
             readThread.start()
 
     def disconnect(self):
         if self.conn != None:
             if (self.conn.is_open):
+                self.conn.write(SerialService.stringCompleter("$dc$").encode())
+                self.conn.flush()
                 self.conn.close()
                 self.conn = None
 
@@ -85,10 +85,10 @@ class SerialService:
                 onError()
 
     @staticmethod
-    def readTask(self, onError):
+    def readTask(self, actionsService, onError):
         while self.conn != None:
             try:
-                self.actionsService.registerButtonEvent(
+                actionsService.registerButtonEvent(
                     self.conn.read(size=4).decode('utf-8'))
             except:
                 print("Error reading serial inputs")

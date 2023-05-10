@@ -20,8 +20,9 @@ def registerAction(actionsService: ActionsService = Provide[Container.actionsSer
     return Response(response='Acknowledged', content_type="text/plain", status=200)
 
 @api.route('/authenticate', methods=['POST'])
-def authenticate():
-    if ("9DTUdnKN5z4jPVaKYAdBjX7C" == request.json["password"] and request.json["username"] == "sppcontroller"):
+@inject
+def authenticate(actionsService: ActionsService = Provide[Container.actionsService]):
+    if (actionsService.clientPassword == request.json["password"] and request.json["username"] == "sppcontroller"):
         print(f'HTTP connection authenticated')
         return Response(response='Bearer TODO', content_type="text/plain", status=200)
     else:

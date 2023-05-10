@@ -48,8 +48,13 @@ void writeLcd(char* data){
     if(strstr(data, "$cl$") != NULL){
          OLED.clearScreen(intf);
     }else{
-         for(i = 0; i<BS; i++){
-            OLED.printChar(intf, data[i]);
+         if(strstr(data, "$dc$") != NULL){
+             OLED.clearScreen(intf);
+             OLED.print(intf, "DEVICE: HC-06\r\n\r\nPASSWORD: 1234");
+         }else{
+             for(i = 0; i<BS; i++){
+                OLED.printChar(intf, data[i]);
+            }
         }
     }
 }
