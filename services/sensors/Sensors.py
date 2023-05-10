@@ -29,6 +29,13 @@ class SensorsService:
         self.readCallbacks.append(callback)
 
     @staticmethod
+    def percentageConverter(value):
+        try:
+            return float(value) * 100
+        except:
+            return 0.0
+
+    @staticmethod
     def sensorsTask(self):
         clr.AddReference(r'libs/OpenHardwareMonitorLib')
         from OpenHardwareMonitor.Hardware import Computer  # type: ignore
@@ -48,8 +55,8 @@ class SensorsService:
             self.sensors.setCpuUsage(psutil.cpu_percent())
             self.sensors.setRamUsage(psutil.virtual_memory().percent)
             if (self.sensors.gpuType == GpuTypes.NVIDIA):
-                self.sensors.setGpuUsage(GPUtil.getGPUs()[0].load)
-                self.sensors.setGpuMemUsage(GPUtil.getGPUs()[0].memoryUtil)
+                self.sensors.setGpuUsage(SensorsService.percentageConverter(GPUtil.getGPUs()[0].load))
+                self.sensors.setGpuMemUsage(SensorsService.percentageConverter(GPUtil.getGPUs()[0].memoryUtil))
             elif (self.sensors.gpuType == GpuTypes.AMD):
                 self.sensors.setGpuUsage(ADLManager.getInstance().getDevices()
                                          [0].getCurrentUsage())
