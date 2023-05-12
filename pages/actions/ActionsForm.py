@@ -2,6 +2,7 @@ import flet as ft
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 from pages.utils import *
+from pages.actions.widgets.eventsView import *
 
 
 def getActionTypeOptions():
@@ -15,12 +16,17 @@ def getActionTypeOptions():
 @inject
 def actionsFormView(page, changeActionsTab, action: Action = None, actionsService: ActionsService = Provide[Container.actionsService], persistence: Persistence = Provide[Container.persistence]):
 
+    def onTypeChange(e):
+        setUserInputView()
+        page.update()
+
     textFieldButton = ft.TextField(
         label="Button", value=None if action == None else action.button, disabled=action != None, max_lines=1)
     dropdownActionType = ft.Dropdown(
         options=getActionTypeOptions(),
         label="Action type",
-        value=None if action == None else action.type.value
+        value=None if action == None else action.type.value,
+        on_change=onTypeChange
     )
     textFieldAction = ft.TextField(
         label="Action", value=None if action == None else action.data, multiline=True, min_lines=5, max_lines=5)
@@ -61,12 +67,27 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
 
     actionsService.addButtonEventCallback(updateTextFieldButton)
 
+    def setUserInputView():
+        if dropdownActionType.value == None:
+            textFieldAction.visible = True
+            userInputView.visible = False
+        if f'{dropdownActionType.value}' == f'{ActionTypes.EXECUTABLE_PATH.value}':
+            textFieldAction.visible = True
+            userInputView.visible = False
+        elif f'{dropdownActionType.value}' == f'{ActionTypes.USER_INPUT.value}':
+            textFieldAction.visible = False
+            userInputView.visible = True
+
+    userInputView = eventsView(page)
+
+    setUserInputView()
+
     return ft.Column(
         [
             ft.Container(
                 content=ft.Column(
                     [
-                        textFieldButton, dropdownActionType, textFieldAction,
+                        textFieldButton, dropdownActionType, textFieldAction, userInputView
                     ],
                 ),
                 padding=ft.padding.only(top=25)
