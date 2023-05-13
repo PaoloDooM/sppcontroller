@@ -1,28 +1,24 @@
 import flet as ft
 
-draggableTarget = ft.Icon(ft.icons.CHEVRON_RIGHT, size=10, color='#9E9E9E')
-emptyListTarget = ft.Text("Drag an element here!")
+draggableTarget = ft.Icon(ft.icons.ARROW_RIGHT, size=40, color='#9E9E9E')
+emptyListTarget = ft.Text("Drag an element here!",
+                          weight=ft.FontWeight.BOLD, color='#9E9E9E')
 
-class DraggableData:
-    def __init__(self, index, isRight):
-        self.index = index
-        self.isRight = isRight
 
-def createDraggableTargets(page: ft.Page, isEmpty: bool, data: DraggableData, insertEvent):
+def createDraggableTargets(page: ft.Page, isEmpty: bool, data: int, insertEvent):
     def drag_will_accept(e):
-        src = page.get_control(e.src_id)
-        if e.control.data.index != src.data.index:
-            e.control.content = src.content_feedback
-            e.control.update()
+        e.control.content.color = '#5e5e5e'
+        e.control.update()
 
     def drag_accept(e: ft.DragTargetAcceptEvent):
         src = page.get_control(e.src_id)
-        if e.control.data.index != src.data.index:
+        if e.control.data != src.data.index:
             insertEvent(src.data, e.control.data)
-        page.update()
+        e.control.content.color = '#9E9E9E'
+        e.control.update()
 
     def drag_leave(e):
-        e.control.content = draggableTarget
+        e.control.content.color = '#9E9E9E'
         e.control.update()
 
     return ft.DragTarget(
