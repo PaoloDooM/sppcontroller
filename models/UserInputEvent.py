@@ -5,3 +5,6 @@ class UserInputEvent:
         self.index = index
         self.eventType = eventType
         self.attributes = attributes
+
+    def setIndex(self, index):
+        self.index = index

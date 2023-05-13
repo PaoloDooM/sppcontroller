@@ -5,7 +5,7 @@ emptyListTarget = ft.Text("Drag an element here!",
                           weight=ft.FontWeight.BOLD, color='#9E9E9E')
 
 
-def createDraggableTargets(page: ft.Page, isEmpty: bool, data: int, insertEvent):
+def createDraggableTarget(page: ft.Page, isEmpty: bool, data: int, insertEvent):
     def drag_will_accept(e):
         e.control.content.color = '#5e5e5e'
         e.control.update()
