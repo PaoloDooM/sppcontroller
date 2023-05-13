@@ -2,7 +2,7 @@ import flet as ft
 from dependency_injector.wiring import Provide, inject
 from containers.Container import *
 from pages.utils import *
-from pages.actions.widgets.eventsView import *
+from pages.actions.EventsPage import *
 
 
 def getActionTypeOptions():
@@ -78,7 +78,7 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
             textFieldAction.visible = False
             userInputView.visible = True
 
-    userInputView = eventsView(page)
+    userInputView = previewEvents(page)
 
     setUserInputView()
 
@@ -90,6 +90,7 @@ def actionsFormView(page, changeActionsTab, action: Action = None, actionsServic
                         textFieldButton, dropdownActionType, textFieldAction, userInputView
                     ],
                 ),
+                alignment=ft.alignment.center,
                 padding=ft.padding.only(top=25)
             ),
             ft.Row(
