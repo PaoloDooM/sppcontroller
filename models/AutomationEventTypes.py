@@ -68,7 +68,7 @@ class AutomationEventTypes(Enum):
 
     def getLabel(self):
         if self.value == 0:
-            return 'Mouse to'
+            return 'Move to'
         elif self.value == 1:
             return 'Click'
         elif self.value == 2:
@@ -86,7 +86,7 @@ class AutomationEventTypes(Enum):
         if self.value == 8:
             return 'Key up'
         elif self.value == 9:
-            return 'Locate and click'
+            return 'Move to img'
 
     def getColor(self):
         if self.value == 0:
@@ -108,7 +108,7 @@ class AutomationEventTypes(Enum):
         if self.value == 8:
             return '#DAA520'
         elif self.value == 9:
-            return '#2F4F4F'
+            return '#5A5A5A'
 
     def haveCofidence(self):
         if self.value == 5:
