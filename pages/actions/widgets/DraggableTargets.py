@@ -1,13 +1,18 @@
 import flet as ft
 
-draggableTarget = ft.Icon(ft.icons.ARROW_RIGHT, size=40, color='#9E9E9E')
-emptyListTarget = ft.Text("Drag an element here!",
-                          weight=ft.FontWeight.BOLD, color='#9E9E9E')
+
+def draggableTarget():
+    return ft.Icon(ft.icons.ARROW_RIGHT, size=40, color='#9E9E9E')
+
+
+def emptyListTarget():
+    return ft.Text("Drag an element here!",
+            weight=ft.FontWeight.BOLD, color='#9E9E9E')
 
 
 def createDraggableTarget(page: ft.Page, isEmpty: bool, data: int, insertEvent):
     def drag_will_accept(e):
-        e.control.content.color = '#5e5e5e'
+        e.control.content.color = '#5b5b5b'
         e.control.update()
 
     def drag_accept(e: ft.DragTargetAcceptEvent):
@@ -23,7 +28,7 @@ def createDraggableTarget(page: ft.Page, isEmpty: bool, data: int, insertEvent):
 
     return ft.DragTarget(
         group="events",
-        content=draggableTarget if not isEmpty else emptyListTarget,
+        content=draggableTarget() if not isEmpty else emptyListTarget(),
         on_will_accept=drag_will_accept,
         on_accept=drag_accept,
         on_leave=drag_leave,

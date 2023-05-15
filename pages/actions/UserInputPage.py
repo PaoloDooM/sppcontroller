@@ -1,3 +1,4 @@
+import copy
 import flet as ft
 from models.AutomationEventTypes import *
 from models.UserInputEvent import *
@@ -6,12 +7,16 @@ from pages.actions.widgets.DraggableTargets import *
 
 
 def userInputTool(page, actionData=[]):
-    eventsWidgetList = ft.GridView(controls=[],         expand=1,
-        runs_count=4,
-        max_extent=50,
+    eventsWidgetList = ft.GridView(
+        controls=[],
+        expand=1,
+        runs_count=3,
+        max_extent=100,
         child_aspect_ratio=1.0,
         spacing=5,
-        run_spacing=5,)
+        run_spacing=5
+    )
+    
     userInputEvents: list = actionData
 
     def remove():
@@ -21,7 +26,6 @@ def userInputTool(page, actionData=[]):
         pass
 
     def insertEvent(draggable: UserInputEvent, target: int):
-        print(f'{draggable.index}->{target}')
         if draggable.index < 0:
             draggable.setIndex(target)
             userInputEvents.insert(target, draggable)
@@ -49,8 +53,8 @@ def userInputTool(page, actionData=[]):
         if (isEmpty):
             return [createDraggableTarget(page=page, isEmpty=True, data=0, insertEvent=insertEvent)]
         events = []
-        for i, event in enumerate(userInputEvents):
-            print(f'index={i}')
+        for i, input in enumerate(userInputEvents):
+            event = copy.copy(input)
             event.setIndex(i)
             events.append(createDraggableTarget(
                 page=page, isEmpty=False, data=i, insertEvent=insertEvent))
