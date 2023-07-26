@@ -58,9 +58,11 @@ class SensorsService:
                 self.sensors.setGpuUsage(SensorsService.percentageConverter(GPUtil.getGPUs()[0].load))
                 self.sensors.setGpuMemUsage(SensorsService.percentageConverter(GPUtil.getGPUs()[0].memoryUtil))
             elif (self.sensors.gpuType == GpuTypes.AMD):
-                self.sensors.setGpuUsage(ADLManager.getInstance().getDevices()
+                try:
+                    self.sensors.setGpuUsage(ADLManager.getInstance().getDevices()
                                          [0].getCurrentUsage())
-
+                except:
+                    self.sensors.setGpuUsage(None)
             try:
                 for i in range(2):
                     cpuClocks = []
