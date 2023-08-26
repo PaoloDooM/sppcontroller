@@ -20,7 +20,7 @@ def createDraggableTarget(page: ft.Page, isEmpty: bool, data: int, insertEvent):
         if e.control.data != src.data.index:
             insertEvent(src.data, e.control.data)
         e.control.content.color = '#9E9E9E'
-        e.control.update()
+        # e.control.update()
 
     def drag_leave(e):
         e.control.content.color = '#9E9E9E'

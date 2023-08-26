@@ -68,7 +68,7 @@ class AutomationEventTypes(Enum):
 
     def getLabel(self):
         if self.value == 0:
-            return 'Move to'
+            return 'Move to xy'
         elif self.value == 1:
             return 'Click'
         elif self.value == 2:

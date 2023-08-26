@@ -19,16 +19,17 @@ def userInputTool(page, actionData=[]):
     
     userInputEvents: list = actionData
 
-    def remove():
+    def remove(event):
         pass
 
-    def launchEdit():
+    def launchEdit(event):
         pass
 
     def insertEvent(draggable: UserInputEvent, target: int):
         if draggable.index < 0:
-            draggable.setIndex(target)
-            userInputEvents.insert(target, draggable)
+            draggableCopy = copy.copy(draggable)
+            draggableCopy.setIndex(target)
+            userInputEvents.insert(target, draggableCopy)
             eventsWidgetList.controls = generateEventsWidgetsList(
                 len(eventsWidgetList.controls) == 0)
             page.update()
